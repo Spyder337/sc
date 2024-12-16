@@ -58,6 +58,20 @@ VALUES
         )
     }
 
+    pub fn get_item_by_var(&self, var: &str) -> Result<Item> {
+        self.conn.query_row(
+            "SELECT ID, VAR, VAL FROM ShellCommanders WHERE VAR = ?1",
+            params![var],
+            |row| {
+                Ok(Item {
+                    id: row.get(0)?,
+                    var: row.get(1)?,
+                    val: row.get(2)?,
+                })
+            },
+        )
+    }
+
     pub fn get_all_items(&self) -> Result<Vec<Item>> {
         let mut stmt = self
             .conn
