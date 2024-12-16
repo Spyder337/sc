@@ -146,6 +146,8 @@ fn update_exec(
                     }
                     change_msg.push_str(&format!("- {}\n", change_list[i]));
                 }
+            } else {
+                change_msg = String::new();
             }
         }
 
@@ -156,8 +158,10 @@ fn update_exec(
         //  If there are changes then append them.
         if changes.is_some() {
             commit_msg.push_str(format!("Updated: {}\n", time_str).as_str());
-            commit_msg.push_str("\nChanges:\n");
-            commit_msg.push_str(&change_msg);
+            if !change_msg.is_empty() {
+                commit_msg.push_str("\nChanges:\n");
+                commit_msg.push_str(&change_msg);
+            }
         }
 
         // Generate the status message
