@@ -82,7 +82,7 @@ pub(crate) fn handle_commands(command: &GitCommands) {
 
 ///  # Example Message
 ///  ```shell
-/// $ Update path_to_stage to_remove "Main Change", "Change1", ...
+/// $ cmd git update -p "path/to/stage" -c "Change 1", "Change 2", "Change 3"
 ///
 /// <Main Change>
 ///

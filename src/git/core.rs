@@ -5,6 +5,8 @@ use git2::{
     Error, ErrorCode, IndexAddOption, Oid, Repository, Signature, StatusOptions, SubmoduleIgnore,
 };
 
+use super::{GIT_AUTHOR, GIT_EMAIL};
+
 ///
 ///
 /// Code Sourced from https://github.com/rust-lang/git2-rs/blob/master/examples/status.rs.
@@ -484,7 +486,7 @@ pub fn create_commit(repo: &Repository, commit_msg: String) -> Result<Oid, git2:
     let parent_commit = head.peel_to_commit()?;
 
     // Create a signature
-    let sig = Signature::now("Author Name", "author@example.com")?;
+    let sig = Signature::now(&GIT_AUTHOR, &GIT_EMAIL)?;
 
     // Create the commit
     let commit_oid = repo.commit(

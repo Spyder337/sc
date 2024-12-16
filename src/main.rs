@@ -1,5 +1,6 @@
 use clap::Parser;
 pub mod cli;
+pub mod core;
 pub mod git;
 
 pub use crate::cli::*;
