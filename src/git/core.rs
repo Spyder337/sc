@@ -1,7 +1,9 @@
 use core::str;
 use std::path::Path;
 
-use git2::{Error, ErrorCode, Repository, StatusOptions, SubmoduleIgnore};
+use git2::{
+    Error, ErrorCode, IndexAddOption, Oid, Repository, Signature, StatusOptions, SubmoduleIgnore,
+};
 
 ///
 ///
@@ -469,7 +471,30 @@ pub fn add_files(repo: &mut Repository, paths: &Vec<String>, update: Option<bool
     index.write().unwrap();
 }
 
-fn get_repo_status(repo: &mut Repository, path_spec: &Path, show_branch: bool) {
-    let mut opts = StatusOptions::new();
-    opts.pathspec(path_spec);
+pub fn create_commit(repo: &Repository, commit_msg: String) -> Result<Oid, git2::Error> {
+    // Get the index and write it as a tree
+    let mut index = repo.index()?;
+    index.add_all(["*"].iter(), IndexAddOption::DEFAULT, None)?;
+    index.write()?;
+    let tree_oid = index.write_tree()?;
+    let tree = repo.find_tree(tree_oid)?;
+
+    // Get the HEAD reference and its commit
+    let head = repo.head()?;
+    let parent_commit = head.peel_to_commit()?;
+
+    // Create a signature
+    let sig = Signature::now("Author Name", "author@example.com")?;
+
+    // Create the commit
+    let commit_oid = repo.commit(
+        Some("HEAD"),      // the name of the reference to update
+        &sig,              // the author signature
+        &sig,              // the committer signature
+        &commit_msg,       // the commit message
+        &tree,             // the tree object this commit points to
+        &[&parent_commit], // parents of the commit
+    )?;
+
+    Ok(commit_oid)
 }

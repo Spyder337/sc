@@ -3,7 +3,7 @@ use std::path::Path; // Add this line to import the crate
 use clap::{Subcommand, ValueHint, command};
 use git2::{Repository, StatusOptions, opts};
 
-use crate::{message_short, print_short, time_now};
+use crate::{create_commit, message_short, print_short, time_now};
 #[derive(Subcommand, Debug)]
 pub enum GitCommands {
     #[command(
@@ -171,6 +171,14 @@ fn update_exec(
         commit_msg.push_str("\nFiles Changed:\n");
         commit_msg.push_str(&status_msg);
         println!("Commit Message Generated: \n\n{}", commit_msg);
+
+        let res = create_commit(r, commit_msg);
+
+        if let Ok(_) = res {
+            println!("Commit was successful.");
+        } else {
+            println!("Commit failed.\n{:?}", res.err());
+        }
     }
 }
 
