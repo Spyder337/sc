@@ -3,6 +3,7 @@ pub mod git;
 pub use crate::git::*;
 use chrono::{DateTime, Local};
 use clap::{Parser, Subcommand, command};
+use git::GitCommands;
 #[derive(Parser, Debug)]
 #[command(version, about = "Quality of life commands.", long_about = None)]
 pub struct Cli {
@@ -22,11 +23,17 @@ pub enum Commands {
 }
 
 pub fn handle_commands(cli: &Cli) -> () {
-    println!("{:?}", cli.commands);
+    // println!("{:?}", cli.commands);
     match &cli.commands {
         Some(command) => match command {
             Commands::Git { com } => git::handle_commands(com),
-            Commands::WebSearch {} => todo!(),
+            Commands::WebSearch {} => todo!(
+                r#"Write a command that performs a google search.
+
+This should be done using as light weight libraries as possible. 
+It might be a good way to generate raw HTTP requests by hand.
+"#
+            ),
         },
         None => println!("No command provided."),
     }

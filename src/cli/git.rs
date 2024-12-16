@@ -1,9 +1,9 @@
 use std::path::Path; // Add this line to import the crate
 
 use clap::{Subcommand, ValueHint, command};
-use git2::Repository;
+use git2::{Repository, StatusOptions, opts};
 
-use crate::time_now;
+use crate::{message_short, print_short, time_now};
 #[derive(Subcommand, Debug)]
 pub enum GitCommands {
     #[command(
@@ -59,6 +59,7 @@ To get a list of all of the valid ignore names use the fetch-ignores command."#
     FetchIgnores {},
 }
 
+/// Takes in a GitCommand and executes it's function.
 pub(crate) fn handle_commands(command: &GitCommands) {
     match command {
         GitCommands::Update {
@@ -77,29 +78,6 @@ pub(crate) fn handle_commands(command: &GitCommands) {
             let _ = fetch_ignores_exec();
         }
     }
-}
-
-/// Add files to the git repository.
-/// paths: Path specs.
-fn add_files(repo: &mut Repository, paths: &Vec<String>) {
-    let mut index = repo.index().unwrap();
-    let cb = &mut |path: &Path, _matched_spec: &[u8]| -> i32 {
-        let status = repo.status_file(path).unwrap();
-        let ret = if status.contains(git2::Status::WT_MODIFIED)
-            || status.contains(git2::Status::WT_NEW)
-        {
-            println!("Add '{}'", path.display());
-            0
-        } else {
-            1
-        };
-        ret
-    };
-
-    let cb = Some(cb as &mut git2::IndexMatchedPath);
-
-    index.update_all(paths, cb).unwrap();
-    index.write().unwrap();
 }
 
 ///  # Example Message
@@ -138,11 +116,11 @@ fn update_exec(
         }
         todo!("Implement unstaging files.")
     } else {
-        println!("Staging new files...");
+        // println!("Staging new files...");
 
         //  Equivalent to git add --update
 
-        add_files(r, &paths.clone().unwrap());
+        crate::git::core::add_files(r, &paths.clone().unwrap(), None);
         //  Git Command: git stage $path
         //  Use `git status -s` to generate an organized change list.
         let mut commit_msg = String::with_capacity(1536);
@@ -178,19 +156,30 @@ fn update_exec(
         //  If there are changes then append them.
         if changes.is_some() {
             commit_msg.push_str(format!("Updated: {}\n", time_str).as_str());
-            commit_msg.push_str("Changes:\n");
+            commit_msg.push_str("\nChanges:\n");
             commit_msg.push_str(&change_msg);
         }
 
+        // Generate the status message
+        let statuses = r.statuses(Some(&mut StatusOptions::new()));
+
+        if let Ok(s) = statuses {
+            status_msg.push_str(&message_short(&r, &s));
+        }
+
         //  Append the status message.
-        commit_msg.push_str("Files Changed:\n");
+        commit_msg.push_str("\nFiles Changed:\n");
         commit_msg.push_str(&status_msg);
-        println!("Commit Message Generated: \n{}", commit_msg);
+        println!("Commit Message Generated: \n\n{}", commit_msg);
     }
 }
 
-fn list_exec() -> () {}
-fn set_dir_exec() -> () {}
+fn list_exec() -> () {
+    todo!("Implement listing repos on disk.")
+}
+fn set_dir_exec() -> () {
+    todo!("Implement storing the default git repo directory.")
+}
 fn get_dir_exec() -> Box<Path> {
     todo!("Return the git directory from the sqlite database.")
 }
