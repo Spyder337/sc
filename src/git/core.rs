@@ -5,7 +5,7 @@ use git2::{
     Error, ErrorCode, IndexAddOption, Oid, Repository, Signature, StatusOptions, SubmoduleIgnore,
 };
 
-use super::{GIT_AUTHOR, GIT_EMAIL};
+use super::{GIT_AUTHOR, GIT_EMAIL, get_git_author, get_git_email};
 
 ///
 ///
@@ -486,7 +486,7 @@ pub fn create_commit(repo: &Repository, commit_msg: String) -> Result<Oid, git2:
     let parent_commit = head.peel_to_commit()?;
 
     // Create a signature
-    let sig = Signature::now(&GIT_AUTHOR, &GIT_EMAIL)?;
+    let sig = Signature::now(&get_git_author(), &get_git_email())?;
 
     // Create the commit
     let commit_oid = repo.commit(

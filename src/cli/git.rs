@@ -1,4 +1,4 @@
-use std::path::Path; // Add this line to import the crate
+use std::{fs, path::Path}; // Add this line to import the crate
 
 use clap::{Subcommand, ValueHint, command};
 use git2::{Repository, StatusOptions, opts};
@@ -186,14 +186,21 @@ fn update_exec(
     }
 }
 
+pub struct GitRepo {
+    pub name: String,
+    pub path: String,
+    pub owned: bool,
+}
+
 fn list_exec() -> () {
+    let paths = fs::read_dir(crate::git::get_git_dir());
     todo!("Implement listing repos on disk.")
 }
 fn set_dir_exec() -> () {
     todo!("Implement storing the default git repo directory.")
 }
 fn get_dir_exec() -> Box<Path> {
-    todo!("Return the git directory from the sqlite database.")
+    Box::from(Path::new(crate::git::get_git_dir().as_str()))
 }
 fn fetch_ignore_exec(ignores: &[String]) -> String {
     todo!("Implement a fetch ignore function that returns the ignore text.");
