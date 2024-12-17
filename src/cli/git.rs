@@ -1,9 +1,9 @@
 use std::{fs, path::Path}; // Add this line to import the crate
 
 use clap::{Subcommand, ValueHint, command};
-use git2::{Repository, StatusOptions, opts};
+use git2::{Repository, StatusOptions};
 
-use crate::{create_commit, message_short, print_short, time_now};
+use crate::{create_commit, message_short, time_now};
 #[derive(Subcommand, Debug)]
 pub enum GitCommands {
     #[command(
@@ -49,7 +49,7 @@ If multiple ignore files are provided then they are appended to the same file.
 To get a list of all of the valid ignore names use the fetch-ignores command."#
     )]
     FetchIgnore {
-        #[arg(help = "Ignore file names", short = 'f', long, num_args= (1..),)]
+        #[arg(help = "Ignore file names", short = 'f', long, num_args= 1..,)]
         files: Vec<String>,
     },
     #[command(
@@ -68,10 +68,10 @@ pub(crate) fn handle_commands(command: &GitCommands) {
             changes,
         } => update_exec(paths, remove, changes),
         GitCommands::List {} => list_exec(),
-        GitCommands::SetDir { path } => set_dir_exec(),
+        GitCommands::SetDir { path } => set_dir_exec(path),
         GitCommands::GetDir {} => {
-            let get_dir_exec = get_dir_exec();
-            println!("Path: {}", get_dir_exec.to_str().unwrap());
+            let dir = get_dir_exec();
+            println!("Path: {}", dir.to_str().unwrap());
         }
         GitCommands::FetchIgnore { files } => todo!(),
         GitCommands::FetchIgnores {} => {
@@ -100,7 +100,7 @@ fn update_exec(
     remove: &Option<bool>,
     changes: &Option<Vec<String>>,
 ) -> () {
-    let mut repo = Repository::open(".");
+    let repo = Repository::open(".");
     if repo.is_err() {
         println!("Was not able to open the repo.\n{:?}", repo.err());
         return;
@@ -193,11 +193,13 @@ pub struct GitRepo {
 }
 
 fn list_exec() -> () {
-    let paths = fs::read_dir(crate::git::get_git_dir());
-    todo!("Implement listing repos on disk.")
+    let dir = crate::git::get_git_dir();
+    println!("Listing repos in: {}", dir);
+    let paths = fs::read_dir(dir);
+    println!("Paths: {:?}", paths);
 }
-fn set_dir_exec() -> () {
-    todo!("Implement storing the default git repo directory.")
+fn set_dir_exec(path: &str) -> () {
+    crate::git::set_git_dir(path);
 }
 fn get_dir_exec() -> Box<Path> {
     Box::from(Path::new(crate::git::get_git_dir().as_str()))

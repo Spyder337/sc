@@ -467,7 +467,8 @@ pub fn add_files(repo: &mut Repository, paths: &Vec<String>, update: Option<bool
     if is_update {
         index.update_all(paths, cb).unwrap();
     } else {
-        index.add_all(paths, git2::IndexAddOption::DEFAULT, cb);
+        //  TODO: Implement Error handling for adding files.
+        let _ = index.add_all(paths, git2::IndexAddOption::DEFAULT, cb);
     }
 
     index.write().unwrap();

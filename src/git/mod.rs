@@ -1,3 +1,4 @@
+#![allow(unused_imports, dead_code)]
 use std::path::Path;
 
 use lazy_static::lazy_static;
@@ -12,7 +13,7 @@ lazy_static! {
 }
 
 pub fn init() {
-    let mut db = crate::Database::new("rsrc/database.db").unwrap();
+    let db = crate::Database::new("rsrc/database.db").unwrap();
     let _ = db.create_table();
     let g_path = db
         .get_item_by_var("GIT_DIR")
@@ -39,11 +40,12 @@ pub fn get_git_dir() -> String {
     return GIT_DIR.lock().unwrap().clone();
 }
 
-pub fn set_git_dir(path: &String) -> bool {
-    let mut db = crate::Database::new("rsrc/database.db").unwrap();
-    let res = db.insert_item("GIT_DIR", Some(path));
+pub fn set_git_dir(path: &str) -> bool {
+    let db = crate::Database::new("rsrc/database.db").unwrap();
+    let res = db.insert_or_update_item("GIT_DIR", Some(path));
     if res.is_ok() {
-        *GIT_DIR.lock().unwrap() = path.clone();
+        *GIT_DIR.lock().unwrap() = path.to_string();
+        let _ = db.update_database_file();
         return true;
     }
     false
@@ -53,11 +55,12 @@ pub fn get_git_author() -> String {
     return GIT_AUTHOR.lock().unwrap().clone();
 }
 
-pub fn set_git_author(author: &String) -> bool {
-    let mut db = crate::Database::new("rsrc/database.db").unwrap();
-    let res = db.insert_item("GIT_AUTHOR", Some(author));
+pub fn set_git_author(author: &str) -> bool {
+    let db = crate::Database::new("rsrc/database.db").unwrap();
+    let res = db.insert_or_update_item("GIT_AUTHOR", Some(author));
     if res.is_ok() {
-        *GIT_AUTHOR.lock().unwrap() = author.clone();
+        *GIT_AUTHOR.lock().unwrap() = author.to_string();
+        let _ = db.update_database_file();
         return true;
     }
     false
@@ -67,12 +70,16 @@ pub fn get_git_email() -> String {
     return GIT_EMAIL.lock().unwrap().clone();
 }
 
-pub fn set_git_email(email: &String) -> bool {
-    let mut db = crate::Database::new("rsrc/database.db").unwrap();
-    let res = db.insert_item("GIT_EMAIL", Some(email));
-    if res.is_ok() {
-        *GIT_EMAIL.lock().unwrap() = email.clone();
-        return true;
+pub fn set_git_email(email: &str) -> bool {
+    let db = crate::Database::new("rsrc/database.db").unwrap();
+    let res = db.insert_or_update_item("GIT_EMAIL", Some(email));
+
+    if let Ok(updated) = res {
+        *GIT_EMAIL.lock().unwrap() = email.to_string();
+        let _ = db.update_database_file();
+        println!("Email set to: {}", GIT_EMAIL.lock().unwrap());
+        true
+    } else {
+        false
     }
-    false
 }

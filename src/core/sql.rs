@@ -1,4 +1,16 @@
-use rusqlite::{params, Connection, Result};
+use std::fs;
+
+use rusqlite::{Connection, params};
+
+pub const SQL_FILE: &str = "rsrc/database.sql";
+pub type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
+
+pub fn box_error<T>(err: Option<T>) -> Box<dyn std::error::Error>
+where
+    T: std::error::Error + 'static,
+{
+    Box::new(err.unwrap())
+}
 
 pub struct Item {
     pub id: i32,
@@ -17,35 +29,45 @@ impl Database {
     }
 
     pub fn create_table(&self) -> Result<()> {
-        self.conn.execute(
-            "CREATE TABLE
-  IF NOT EXISTS ShellCommanders (
-    ID INTEGER PRIMARY KEY AUTOINCREMENT,
-    VAR TEXT NOT NULL,
-    VAL TEXT
-  );
+        let text_res = fs::read_to_string(SQL_FILE);
 
-INSERT
-OR IGNORE INTO ShellCommanders (VAR, VAL)
-VALUES
-  ('GIT_DIR', '~/Code'),
-  ('GIT_AUTHOR', 'Author'),
-  ('GIT_EMAIL', 'email.address@site.dom');",
-            [],
-        )?;
-        Ok(())
+        if let Ok(text) = text_res {
+            self.conn.execute_batch(&text)?;
+            return Ok(());
+        }
+
+        Err(box_error(text_res.err()))
     }
 
-    pub fn insert_item(&self, var: &str, val: Option<&str>) -> Result<()> {
-        self.conn.execute(
+    pub fn insert_item(&self, var: &str, val: Option<&str>) -> Result<usize> {
+        let query = self.conn.execute(
             "INSERT OR IGNORE INTO ShellCommanders (VAR, VAL) VALUES (?1, ?2)",
             params![var, val],
-        )?;
-        Ok(())
+        );
+
+        if query.is_err() {
+            return Err(box_error(query.err()));
+        } else {
+            return Ok(query.unwrap());
+        }
+    }
+
+    pub fn insert_or_update_item(&self, var: &str, val: Option<&str>) -> Result<usize> {
+        let query = self.conn.execute(
+            "INSERT INTO ShellCommanders (VAR, VAL) VALUES (?1, ?2)
+            ON CONFLICT(VAR) DO UPDATE SET VAL = excluded.VAL",
+            params![var, val],
+        );
+
+        if query.is_err() {
+            return Err(box_error(query.err()));
+        } else {
+            return Ok(query.unwrap());
+        }
     }
 
     pub fn get_item_by_id(&self, id: i32) -> Result<Item> {
-        self.conn.query_row(
+        let query = self.conn.query_row(
             "SELECT ID, VAR, VAL FROM ShellCommanders WHERE ID = ?1",
             params![id],
             |row| {
@@ -55,11 +77,17 @@ VALUES
                     val: row.get(2)?,
                 })
             },
-        )
+        );
+
+        if query.is_err() {
+            return Err(box_error(query.err()));
+        } else {
+            return Ok(query.unwrap());
+        }
     }
 
     pub fn get_item_by_var(&self, var: &str) -> Result<Item> {
-        self.conn.query_row(
+        let query = self.conn.query_row(
             "SELECT ID, VAR, VAL FROM ShellCommanders WHERE VAR = ?1",
             params![var],
             |row| {
@@ -69,7 +97,13 @@ VALUES
                     val: row.get(2)?,
                 })
             },
-        )
+        );
+
+        if query.is_err() {
+            return Err(box_error(query.err()));
+        } else {
+            return Ok(query.unwrap());
+        }
     }
 
     pub fn get_all_items(&self) -> Result<Vec<Item>> {
@@ -91,18 +125,42 @@ VALUES
         Ok(results)
     }
 
-    pub fn update_item(&self, id: i32, var: &str, val: Option<&str>) -> Result<()> {
-        self.conn.execute(
+    pub fn update_item(&self, id: i32, var: &str, val: Option<&str>) -> Result<usize> {
+        let query = self.conn.execute(
             "UPDATE ShellCommanders SET VAR = ?1, VAL = ?2 WHERE ID = ?3",
             params![var, val, id],
-        )?;
-        Ok(())
+        );
+
+        if query.is_err() {
+            return Err(box_error(query.err()));
+        } else {
+            return Ok(query.unwrap());
+        }
     }
 
-    pub fn delete_item(&self, id: i32) -> Result<()> {
-        self.conn
-            .execute("DELETE FROM ShellCommanders WHERE ID = ?1", params![id])?;
-        Ok(())
+    pub fn update_item_by_var(&self, var: &str, val: Option<&str>) -> Result<usize> {
+        let query = self.conn.execute(
+            "UPDATE ShellCommanders SET VAL = ?1 WHERE VAR = ?2",
+            params![val, var],
+        );
+
+        if query.is_err() {
+            return Err(box_error(query.err()));
+        } else {
+            return Ok(query.unwrap());
+        }
+    }
+
+    pub fn delete_item(&self, id: i32) -> Result<usize> {
+        let query = self
+            .conn
+            .execute("DELETE FROM ShellCommanders WHERE ID = ?1", params![id]);
+
+        if query.is_err() {
+            return Err(box_error(query.err()));
+        } else {
+            return Ok(query.unwrap());
+        }
     }
 
     pub fn item_exists(&self, id: i32) -> Result<bool> {
@@ -121,5 +179,15 @@ VALUES
             |row| row.get(0),
         )?;
         Ok(exists)
+    }
+
+    pub fn update_database_file(&self) -> Result<usize> {
+        let statement = self.conn.execute("VACUUM", []);
+
+        if statement.is_err() {
+            return Err(box_error(statement.err()));
+        } else {
+            return Ok(statement.unwrap());
+        }
     }
 }
