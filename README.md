@@ -21,7 +21,7 @@ To develop the crate make sure that the rust nightly toolchain is installed.
 Provide usage instructions and examples here. For example, calling the crate from the command line:
 
 ```sh
-cmd help
+Quality of life commands.
 
 Usage: cmd [COMMAND]
 
@@ -33,6 +33,36 @@ Commands:
 Options:
   -h, --help     Print help
   -V, --version  Print version
+```
+
+```sh
+Special operators:
+    - "*": Wildcard
+    - "()": Parenthesis/Group
+    - "allintext:": All text is in the website
+    - "-": Exclude operator
+    - "AND|OR": Conditonal search keywords
+    - '"': Search for exact phrases or a word
+    - "site": Restrict a search to a specific site.
+
+Usage: cmd web-search [OPTIONS] <QUERY>
+
+Arguments:
+  <QUERY>
+          The search query that shows up in the google search bar
+
+Options:
+      --open
+
+
+      --site <SITE>
+
+
+      --allintext <ALL_IN_TEXT>
+
+
+  -h, --help
+          Print help (see a summary with '-h')
 ```
 
 ### Git Commands
@@ -47,7 +77,6 @@ Commands:
   get-dir        Get the repo directory.
   fetch-ignore   Fetch a .gitignore file.
   fetch-ignores  Display valid ignore files.
-  read-me
   help           Print this message or the help of the given subcommand(s)
 
 Options:
@@ -69,13 +98,12 @@ Options:
   - [x] fetch-ignore
   - [x] fetch-ignores
   - [x] list
-- [ ] web-search **(0/3)**
+- [ ] web-search **(2/2)**
 
     Contains the functionality for performing google search queries.
 
-  - [ ] No filter query
-  - [ ] Domain filter
-  - [ ] Complex query
+  - [x] No filter query
+  - [x] Domain filter
 - [ ] welcome **(0/1)**
 
     The message of the day that should be presented when a terminal boots up.
@@ -99,7 +127,7 @@ Options:
   - [ ] Saved Quotes
   - [ ] Online Database
 
-**Progress**: **6/14**
+**Progress**: **8/13**
 
 ## Credits
 

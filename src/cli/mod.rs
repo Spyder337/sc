@@ -1,5 +1,4 @@
 pub mod git;
-pub mod web;
 
 use crate::core::web::{SearchParams, basic_search};
 pub use crate::git::*;
@@ -21,13 +20,27 @@ pub enum Commands {
         com: GitCommands,
     },
     /// Seach google.
-    #[command(about = "Search google.")]
+    #[command(
+        about = "Search google.",
+        long_about = r#"Special operators:
+    - "*": Wildcard
+    - "()": Parenthesis/Group
+    - "allintext:": All text is in the website
+    - "-": Exclude operator
+    - "AND|OR": Conditonal search keywords
+    - '"': Search for exact phrases or a word
+    - "site": Restrict a search to a specific site."#
+    )]
     WebSearch {
         /// The search query that shows up in the google search bar.
         #[arg(required = true)]
         query: String,
         #[arg(long, default_value = "true", default_value_t = true)]
         open: bool,
+        #[arg(long)]
+        site: Option<String>,
+        #[arg(long = "allintext")]
+        all_in_text: Option<String>,
     },
 }
 
@@ -36,7 +49,23 @@ pub fn handle_commands(cli: &Cli) -> () {
     match &cli.commands {
         Some(command) => match command {
             Commands::Git { com } => git::handle_commands(com),
-            Commands::WebSearch { query, open } => basic_search(SearchParams::new(query), open),
+            Commands::WebSearch {
+                query,
+                open,
+                site,
+                all_in_text,
+            } => {
+                let mut query_string = query.clone();
+                if let Some(site) = site {
+                    query_string.push_str(&format!(" site:{}", site));
+                }
+                if let Some(all_in_text) = all_in_text {
+                    query_string.push_str(&format!(" allintext:{}", all_in_text));
+                }
+                let search = SearchParams::new(&query_string);
+
+                basic_search(search, open);
+            }
         },
         None => println!("No command provided."),
     }

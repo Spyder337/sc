@@ -1,6 +1,6 @@
-use std::{collections::HashMap, os::unix::process::CommandExt, process::Command};
+use std::collections::HashMap;
 
-use reqwest::{Method, Url, header::USER_AGENT};
+use reqwest::Url;
 
 pub struct SearchParams {
     pub url: String,
