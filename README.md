@@ -59,7 +59,7 @@ Options:
 
 #### Commands
 
-- [ ] git **(6/7)**
+- [ ] git **(6/6)**
 
     Contains all the functionality for managing a git repo and easily interacting with repos on disk.
 
@@ -68,7 +68,6 @@ Options:
   - [x] set-dir
   - [x] fetch-ignore
   - [x] fetch-ignores
-  - [ ] read-me
   - [x] list
 - [ ] web-search **(0/3)**
 
@@ -89,7 +88,7 @@ Options:
     A potential providers: [Paper Quotes][api-paper-quotes], [Forbes Thoughts][api-forbes]
 
     > Note:
-    > Forbes uses an API that provides for the quotes page. It's url is http://www.forbes.com/forbesapi/thought/uri.json?enrich=true&query=1&relatedlimit=5
+    > Forbes uses an API that provides for the quotes page. It's url is `http://www.forbes.com/forbesapi/thought/uri.json?enrich=true&query=1&relatedlimit=5`
     >
     >query=1: Query today
     >
@@ -100,7 +99,7 @@ Options:
   - [ ] Saved Quotes
   - [ ] Online Database
 
-**Progress**: **6/15**
+**Progress**: **6/14**
 
 ## Credits
 

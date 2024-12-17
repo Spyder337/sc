@@ -1,4 +1,4 @@
-use std::{fs, path::Path, vec}; // Add this line to import the crate
+use std::{collections::HashMap, fs, path::Path, vec}; // Add this line to import the crate
 
 use clap::{Subcommand, ValueHint, command};
 use git2::{Repository, StatusOptions};
@@ -80,7 +80,6 @@ To get a list of all of the valid ignore names use the fetch-ignores command."#
         )]
         name: Option<String>,
     },
-    ReadMe {},
 }
 
 pub enum LicenseType {
@@ -114,26 +113,7 @@ pub(crate) fn handle_commands(command: &GitCommands) {
         }
         GitCommands::FetchIgnore { files } => fetch_ignore_exec(&files),
         GitCommands::FetchIgnores { name } => fetch_ignores_exec(name),
-
-        GitCommands::ReadMe {} => generate_readme_exec(),
     }
-}
-
-/// # Summary
-/// Generates a README.md file for the current rust project.
-/// The function looks for a Cargo.toml file in the directory root and then
-/// parses it for dependencies and other information.
-///
-/// ## ReadMe Sections
-/// 1. Title
-/// 1. Description
-/// 1. Installation
-/// 1. Usage
-/// 1. Credits
-/// 1. License
-/// 1. Contributing
-fn generate_readme_exec() {
-    todo!("Generate a readme file for the current project.");
 }
 
 ///  # Example Message
