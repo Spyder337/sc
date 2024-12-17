@@ -194,7 +194,7 @@ pub struct GitRepo {
 
 fn list_exec() -> () {
     let dir = crate::git::get_git_dir();
-    println!("Listing repos in: {}", dir);
+    println!("Listing repos in: {:?}", dir);
     let paths = fs::read_dir(dir);
     println!("Paths: {:?}", paths);
 }
@@ -202,7 +202,7 @@ fn set_dir_exec(path: &str) -> () {
     crate::git::set_git_dir(path);
 }
 fn get_dir_exec() -> Box<Path> {
-    Box::from(Path::new(crate::git::get_git_dir().as_str()))
+    crate::git::get_git_dir()
 }
 fn fetch_ignore_exec(ignores: &[String]) -> String {
     todo!("Implement a fetch ignore function that returns the ignore text.");
