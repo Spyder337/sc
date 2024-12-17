@@ -12,6 +12,7 @@ OR IGNORE INTO ShellCommanders (VAR, VAL)
 VALUES
   ('GIT_DIR', '~/Code'),
   ('GIT_AUTHOR', 'Author'),
-  ('GIT_EMAIL', 'email.address@site.dom');
+  ('GIT_EMAIL', 'email.address@site.dom'),
+  ('GIT_IGNORE_URL', 'https://www.toptal.com/developers/gitignore');
 
 COMMIT;

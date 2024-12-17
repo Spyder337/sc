@@ -1,9 +1,9 @@
-use std::{fs, path::Path}; // Add this line to import the crate
+use std::{fs, path::Path, vec}; // Add this line to import the crate
 
 use clap::{Subcommand, ValueHint, command};
 use git2::{Repository, StatusOptions};
 
-use crate::{GIT_AUTHOR, create_commit, get_git_author, message_short, time_now};
+use crate::{create_commit, message_short, time_now};
 
 use super::get_git_dir;
 
@@ -65,14 +65,21 @@ If multiple ignore files are provided then they are appended to the same file.
 To get a list of all of the valid ignore names use the fetch-ignores command."#
     )]
     FetchIgnore {
-        #[arg(help = "Ignore file names", short = 'f', long, num_args= 1..,)]
+        #[arg(help = "Ignore file names", num_args= 1..,)]
         files: Vec<String>,
     },
     #[command(
         about = "Display valid ignore files.",
         long_about = r###"Fetches ignore files from https://github.com/github/gitignore"###
     )]
-    FetchIgnores {},
+    FetchIgnores {
+        #[arg(
+            short = 's',
+            long = "search",
+            help = "Search for a specific ignore file."
+        )]
+        name: Option<String>,
+    },
     ReadMe {},
 }
 
@@ -105,10 +112,9 @@ pub(crate) fn handle_commands(command: &GitCommands) {
             let dir = get_dir_exec();
             println!("Path: {}", dir.to_str().unwrap());
         }
-        GitCommands::FetchIgnore { files } => todo!(),
-        GitCommands::FetchIgnores {} => {
-            let _ = fetch_ignores_exec();
-        }
+        GitCommands::FetchIgnore { files } => fetch_ignore_exec(&files),
+        GitCommands::FetchIgnores { name } => fetch_ignores_exec(name),
+
         GitCommands::ReadMe {} => generate_readme_exec(),
     }
 }
@@ -294,12 +300,40 @@ fn get_dir_exec() -> Box<Path> {
     crate::git::get_git_dir()
 }
 
-fn fetch_ignore_exec(ignores: &[String]) -> String {
-    todo!("Implement a fetch ignore function that returns the ignore text.");
-    todo!("Implement combining different ignore files.")
-}
-fn fetch_ignores_exec() -> Vec<String> {
-    todo!("Implement fetching a list of valid ignore files.")
+fn fetch_ignore_exec(ignores: &[String]) -> () {
+    let url = "https://www.toptal.com/developers/gitignore/api/";
+    let full_url = format!("{}{}", url, ignores.join(","));
+    let res = reqwest::blocking::get(full_url).unwrap();
+    let body = res.text().unwrap();
+    println!("{}", body);
 }
 
-fn cheat_sheet_exec() -> () {}
+fn get_ignore_list(name: &Option<String>) -> Vec<String> {
+    let url = "https://www.toptal.com/developers/gitignore/api/list?format=lines";
+    // println!("Url: {}", url);
+    let res = reqwest::blocking::get(url).unwrap();
+    // println!("{:#?}", res);
+    let body = res.text().unwrap();
+    if name.is_none() {
+        return body.lines().map(|x| x.to_string()).collect();
+    } else {
+        return body
+            .lines()
+            .filter(|x| x.contains(name.clone().unwrap().as_str()))
+            .map(|x| x.to_string())
+            .collect();
+    }
+}
+
+fn fetch_ignores_exec(name: &Option<String>) -> () {
+    let ignores = get_ignore_list(name);
+    let mut cnt = 1;
+    for ignore in ignores {
+        println!("{}: {}", cnt, ignore);
+        cnt += 1;
+    }
+}
+
+fn cheat_sheet_exec() -> () {
+    todo!("Link to a git cheat sheet or make one and display that.")
+}

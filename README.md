@@ -59,15 +59,15 @@ Options:
 
 #### Commands
 
-- [ ] git **(4/7)**
+- [ ] git **(6/7)**
 
     Contains all the functionality for managing a git repo and easily interacting with repos on disk.
 
   - [x] update
   - [x] get-dir
   - [x] set-dir
-  - [ ] fetch-ignore
-  - [ ] fetch-ignores
+  - [x] fetch-ignore
+  - [x] fetch-ignores
   - [ ] read-me
   - [x] list
 - [ ] web-search **(0/3)**
@@ -100,7 +100,7 @@ Options:
   - [ ] Saved Quotes
   - [ ] Online Database
 
-**Progress**: **4/15**
+**Progress**: **6/15**
 
 ## Credits
 
@@ -109,21 +109,25 @@ List any contributors, third-party libraries, or other resources you want to ack
 ### Dependencies
 
 ```toml
-[dependencies]
 # Time crates
 chrono = "0.4.39"
 # Command Line Application
-clap = { version = "4.5.23", features = ["derive"] }
+clap = { version = "4.5.23", features = ["derive", "suggestions"] }
 # Command Line Completion generation
 clap_complete = "4.5.38"
 derive = "1.0.0"
+# System Folders
+directories = "5.0.1"
 # Git interactions
 git2 = "0.19.0"
+# Initialize statics at runtime
 lazy_static = "1.5.0"
+reqwest = { version = "0.12.9", features = ["blocking"] }
 # Local database
 rusqlite = { version = "0.32.1", features = ["bundled"] }
 # Used for parsing some toml data 
 serde = { version = "1.0.216", features = ["derive"] }
+tokio = { version = "1.42.0", features = ["full"] }
 ```
 
 ## License

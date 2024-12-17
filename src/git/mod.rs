@@ -153,3 +153,16 @@ pub fn set_git_email(email: &str) -> bool {
         false
     }
 }
+
+fn get_git_ignore_url_db(db: &Database) -> String {
+    return db
+        .get_item_by_var("GIT_IGNORE_URL")
+        .unwrap()
+        .val
+        .unwrap_or(String::from("https://www.toptal.com/developers/gitignore"));
+}
+
+pub fn get_git_ignore_url() -> String {
+    let db = Database::new("rsrc/database.db").unwrap();
+    get_git_author_db(&db)
+}
