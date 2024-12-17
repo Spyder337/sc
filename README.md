@@ -59,7 +59,7 @@ Options:
 
 #### Commands
 
-- [ ] git **(6/6)**
+- [x] git **(6/6)**
 
     Contains all the functionality for managing a git repo and easily interacting with repos on disk.
 
