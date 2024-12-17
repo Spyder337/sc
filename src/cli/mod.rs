@@ -1,5 +1,7 @@
 pub mod git;
+pub mod web;
 
+use crate::core::web::{SearchParams, basic_search};
 pub use crate::git::*;
 use chrono::{DateTime, Local};
 use clap::{Parser, Subcommand, command};
@@ -18,8 +20,15 @@ pub enum Commands {
         #[command(subcommand)]
         com: GitCommands,
     },
+    /// Seach google.
     #[command(about = "Search google.")]
-    WebSearch {},
+    WebSearch {
+        /// The search query that shows up in the google search bar.
+        #[arg(required = true)]
+        query: String,
+        #[arg(long, default_value = "true", default_value_t = true)]
+        open: bool,
+    },
 }
 
 pub fn handle_commands(cli: &Cli) -> () {
@@ -27,13 +36,7 @@ pub fn handle_commands(cli: &Cli) -> () {
     match &cli.commands {
         Some(command) => match command {
             Commands::Git { com } => git::handle_commands(com),
-            Commands::WebSearch {} => todo!(
-                r#"Write a command that performs a google search.
-
-This should be done using as light weight libraries as possible. 
-It might be a good way to generate raw HTTP requests by hand.
-"#
-            ),
+            Commands::WebSearch { query, open } => basic_search(SearchParams::new(query), open),
         },
         None => println!("No command provided."),
     }
