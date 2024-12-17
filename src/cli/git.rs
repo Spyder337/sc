@@ -244,14 +244,21 @@ pub struct GitRepo {
 
 fn traverse_dir(dir: Box<Path>, acc: &mut Vec<Box<Path>>) {
     let entries = fs::read_dir(dir).unwrap();
+    let git_dir = get_git_dir();
     for entry in entries {
         let entry = entry.unwrap();
         let path = entry.path();
         if path.is_dir() {
-            let code_path = get_git_dir().join(Path::new(&get_git_author()));
-            // println!("{:?}", path);
+            if path.components().into_iter().any(|x| {
+                x.as_os_str() == "target"
+                    || x.as_os_str() == "obj"
+                    || x.as_os_str() == ".git"
+                    || x.as_os_str() == "bin"
+            }) {
+                continue;
+            }
 
-            if path.parent().unwrap() == code_path {
+            if path.parent().unwrap().parent().unwrap() == git_dir.to_path_buf() {
                 acc.push(entry.path().into_boxed_path());
             }
 
@@ -262,18 +269,18 @@ fn traverse_dir(dir: Box<Path>, acc: &mut Vec<Box<Path>>) {
 
 fn list_exec() -> () {
     let dir = crate::git::get_git_dir();
-    println!("Listing repos in: {:#?}", dir);
     let exists = dir.exists();
     if !exists {
         println!("Directory does not exist.");
         return;
     }
-    println!("Directories:");
     let entries = fs::read_dir(&dir).unwrap();
     let mut paths: Vec<Box<Path>> = Vec::new();
     let buff = dir.into_path_buf();
     traverse_dir(buff.into_boxed_path(), &mut paths);
+    println!("Listing repos in: {:#?}", get_git_dir());
 
+    println!("Directories:");
     for path in paths {
         println!("{:?}", path);
     }
