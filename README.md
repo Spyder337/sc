@@ -127,7 +127,7 @@ serde = { version = "1.0.216", features = ["derive"] }
 
 ## License
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License. See the [LICENSE](LICENSE.md) file for details.
 
 [repo-cmd]: https://github.com/Spyder337/cmd
 [repo-shell]: https://github.com/Spyder337/nu-config
