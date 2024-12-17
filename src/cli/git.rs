@@ -3,7 +3,23 @@ use std::{fs, path::Path}; // Add this line to import the crate
 use clap::{Subcommand, ValueHint, command};
 use git2::{Repository, StatusOptions};
 
-use crate::{create_commit, message_short, time_now};
+use crate::{GIT_AUTHOR, create_commit, get_git_author, message_short, time_now};
+
+use super::get_git_dir;
+
+/// # Summary
+/// Git related commands for the CLI.
+///
+/// ## Commands
+/// Contains the following functions:
+/// - Update : Stage changes and commit them.
+/// - List : List the repos in the user git directory.
+/// - SetDir : Set the current repo directory.
+/// - GetDir : Get the current repo directory.
+/// - FetchIgnore : Fetches a .gitignore file.  
+/// - FetchIgnores : Fetches a list of valid ignore files.
+/// - CheatSheet : Git Cheat Sheet
+/// - ReadMe : Generate a README.md file.
 #[derive(Subcommand, Debug)]
 pub enum GitCommands {
     #[command(
@@ -57,6 +73,22 @@ To get a list of all of the valid ignore names use the fetch-ignores command."#
         long_about = r###"Fetches ignore files from https://github.com/github/gitignore"###
     )]
     FetchIgnores {},
+    ReadMe {},
+}
+
+pub enum LicenseType {
+    MIT,
+    Apache,
+    GPL,
+    LGPL,
+    BSD,
+    MPL,
+    AGPL,
+    EPL,
+    ISC,
+    WTFPL,
+    Unlicense,
+    Custom,
 }
 
 /// Takes in a GitCommand and executes it's function.
@@ -77,7 +109,25 @@ pub(crate) fn handle_commands(command: &GitCommands) {
         GitCommands::FetchIgnores {} => {
             let _ = fetch_ignores_exec();
         }
+        GitCommands::ReadMe {} => generate_readme_exec(),
     }
+}
+
+/// # Summary
+/// Generates a README.md file for the current rust project.
+/// The function looks for a Cargo.toml file in the directory root and then
+/// parses it for dependencies and other information.
+///
+/// ## ReadMe Sections
+/// 1. Title
+/// 1. Description
+/// 1. Installation
+/// 1. Usage
+/// 1. Credits
+/// 1. License
+/// 1. Contributing
+fn generate_readme_exec() {
+    todo!("Generate a readme file for the current project.");
 }
 
 ///  # Example Message
@@ -192,18 +242,51 @@ pub struct GitRepo {
     pub owned: bool,
 }
 
+fn traverse_dir(dir: Box<Path>, acc: &mut Vec<Box<Path>>) {
+    let entries = fs::read_dir(dir).unwrap();
+    for entry in entries {
+        let entry = entry.unwrap();
+        let path = entry.path();
+        if path.is_dir() {
+            let code_path = get_git_dir().join(Path::new(&get_git_author()));
+            // println!("{:?}", path);
+
+            if path.parent().unwrap() == code_path {
+                acc.push(entry.path().into_boxed_path());
+            }
+
+            traverse_dir(path.into_boxed_path(), acc);
+        }
+    }
+}
+
 fn list_exec() -> () {
     let dir = crate::git::get_git_dir();
-    println!("Listing repos in: {:?}", dir);
-    let paths = fs::read_dir(dir);
-    println!("Paths: {:?}", paths);
+    println!("Listing repos in: {:#?}", dir);
+    let exists = dir.exists();
+    if !exists {
+        println!("Directory does not exist.");
+        return;
+    }
+    println!("Directories:");
+    let entries = fs::read_dir(&dir).unwrap();
+    let mut paths: Vec<Box<Path>> = Vec::new();
+    let buff = dir.into_path_buf();
+    traverse_dir(buff.into_boxed_path(), &mut paths);
+
+    for path in paths {
+        println!("{:?}", path);
+    }
 }
+
 fn set_dir_exec(path: &str) -> () {
     crate::git::set_git_dir(path);
 }
+
 fn get_dir_exec() -> Box<Path> {
     crate::git::get_git_dir()
 }
+
 fn fetch_ignore_exec(ignores: &[String]) -> String {
     todo!("Implement a fetch ignore function that returns the ignore text.");
     todo!("Implement combining different ignore files.")
