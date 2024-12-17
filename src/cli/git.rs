@@ -1,4 +1,4 @@
-use std::{collections::HashMap, fs, path::Path, vec}; // Add this line to import the crate
+use std::{fs, path::Path}; // Add this line to import the crate
 
 use clap::{Subcommand, ValueHint, command};
 use git2::{Repository, StatusOptions};
@@ -143,10 +143,10 @@ fn update_exec(
     }
 
     let r = &mut repo.unwrap();
-    let mut removing = false;
+    let mut _removing = false;
     if let Some(val) = remove {
-        removing = *val;
-        if removing {
+        _removing = *val;
+        if _removing {
             println!("Deleting files from being staged.");
             //  Git Command: git restore --staged $path
         }
@@ -260,7 +260,6 @@ fn list_exec() -> () {
         println!("Directory does not exist.");
         return;
     }
-    let entries = fs::read_dir(&dir).unwrap();
     let mut paths: Vec<Box<Path>> = Vec::new();
     let buff = dir.into_path_buf();
     traverse_dir(buff.into_boxed_path(), &mut paths);
@@ -312,8 +311,4 @@ fn fetch_ignores_exec(name: &Option<String>) -> () {
         println!("{}: {}", cnt, ignore);
         cnt += 1;
     }
-}
-
-fn cheat_sheet_exec() -> () {
-    todo!("Link to a git cheat sheet or make one and display that.")
 }

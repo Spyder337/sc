@@ -144,7 +144,7 @@ pub fn set_git_email(email: &str) -> bool {
     let db = crate::Database::new("rsrc/database.db").unwrap();
     let res = db.insert_or_update_item("GIT_EMAIL", Some(email));
 
-    if let Ok(updated) = res {
+    if let Ok(_updated) = res {
         *GIT_EMAIL.lock().unwrap() = email.to_string();
         let _ = db.update_database_file();
         println!("Email set to: {}", GIT_EMAIL.lock().unwrap());
