@@ -1,11 +1,15 @@
+#![allow(dead_code)]
 use core::str;
+use std::cell::RefCell;
+use std::io::Write;
 use std::path::Path;
+use std::{io, path::PathBuf};
 
+use git2::build::{CheckoutBuilder, RepoBuilder};
 use git2::{
-    Error, ErrorCode, IndexAddOption, Oid, Repository, Signature, StatusOptions, SubmoduleIgnore,
+    Error, ErrorCode, FetchOptions, Oid, Progress, RemoteCallbacks, Repository, Signature,
+    SubmoduleIgnore,
 };
-
-use super::{GIT_AUTHOR, GIT_EMAIL, get_git_author, get_git_email};
 
 ///
 ///
@@ -312,6 +316,7 @@ pub fn print_short(repo: &Repository, statuses: &git2::Statuses) {
         );
     }
 }
+
 // This version of the output prefixes each path with two status columns and
 // shows submodule status information.
 pub fn message_short(repo: &Repository, statuses: &git2::Statuses) -> String {
@@ -434,6 +439,115 @@ pub fn message_short(repo: &Repository, statuses: &git2::Statuses) -> String {
     }
     msg
 }
+
+/// Encapsulates the progress of a clone operation.
+struct State {
+    progress: Option<Progress<'static>>,
+    total: usize,
+    current: usize,
+    path: Option<PathBuf>,
+    newline: bool,
+}
+
+/// Print the progress of a clone operation.
+fn print(state: &mut State) {
+    let stats = state.progress.as_ref().unwrap();
+    let network_pct = (100 * stats.received_objects()) / stats.total_objects();
+    let index_pct = (100 * stats.indexed_objects()) / stats.total_objects();
+    let co_pct = if state.total > 0 {
+        (100 * state.current) / state.total
+    } else {
+        0
+    };
+    let kbytes = stats.received_bytes() / 1024;
+    if stats.received_objects() == stats.total_objects() {
+        if !state.newline {
+            println!();
+            state.newline = true;
+        }
+        print!(
+            "Resolving deltas {}/{}\r",
+            stats.indexed_deltas(),
+            stats.total_deltas()
+        );
+    } else {
+        print!(
+            "net {:3}% ({:4} kb, {:5}/{:5})  /  idx {:3}% ({:5}/{:5})  \
+             /  chk {:3}% ({:4}/{:4}) {}\r",
+            network_pct,
+            kbytes,
+            stats.received_objects(),
+            stats.total_objects(),
+            index_pct,
+            stats.indexed_objects(),
+            stats.total_objects(),
+            co_pct,
+            state.current,
+            state.total,
+            state
+                .path
+                .as_ref()
+                .map(|s| s.to_string_lossy().into_owned())
+                .unwrap_or_default()
+        )
+    }
+    io::stdout().flush().unwrap();
+}
+
+/// Clone a repository.
+pub fn clone_repo(url: &str, dir: &Option<String>) -> crate::Result<()> {
+    let path: &Path;
+    if let Some(d) = dir {
+        path = Path::new(d);
+    } else {
+        path = Path::new(".");
+    }
+    let state = RefCell::new(State {
+        progress: None,
+        total: 0,
+        current: 0,
+        path: None,
+        newline: false,
+    });
+    //  Callback for outputing the progress of the clone operation.
+    let mut cb = RemoteCallbacks::new();
+    cb.transfer_progress(|stats| {
+        let mut state = state.borrow_mut();
+        state.progress = Some(stats.to_owned());
+        print(&mut *state);
+        true
+    });
+
+    //  Callback for outputing the progress of the checkout operation.
+    let mut co = CheckoutBuilder::new();
+    co.progress(|path, cur, total| {
+        let mut state = state.borrow_mut();
+        state.path = path.map(|p| p.to_path_buf());
+        state.current = cur;
+        state.total = total;
+        print(&mut *state);
+    });
+
+    //  Create the fetch options and the callback.
+    let mut fo = FetchOptions::new();
+    fo.remote_callbacks(cb);
+    //  Build a repository providing the fetch options and the checkout options.
+    //  Call clone to clone the repository.
+    let res = RepoBuilder::new()
+        .fetch_options(fo)
+        .with_checkout(co)
+        .clone(url, path);
+
+    println!();
+
+    match res {
+        Ok(repo) => Ok(()),
+        Err(e) => {
+            return Err(e.into());
+        }
+    }
+}
+
 ///
 ///
 /// End of Sourced code https://github.com/rust-lang/git2-rs/blob/master/examples/status.rs
@@ -477,8 +591,6 @@ pub fn add_files(repo: &mut Repository, paths: &Vec<String>, update: Option<bool
 pub fn create_commit(repo: &Repository, commit_msg: String) -> Result<Oid, git2::Error> {
     // Get the index and write it as a tree
     let mut index = repo.index()?;
-    index.add_all(["*"].iter(), IndexAddOption::DEFAULT, None)?;
-    index.write()?;
     let tree_oid = index.write_tree()?;
     let tree = repo.find_tree(tree_oid)?;
 
@@ -486,8 +598,10 @@ pub fn create_commit(repo: &Repository, commit_msg: String) -> Result<Oid, git2:
     let head = repo.head()?;
     let parent_commit = head.peel_to_commit()?;
 
+    let name = crate::ENV.lock().unwrap().git_name.clone();
+    let email = crate::ENV.lock().unwrap().git_email.clone();
     // Create a signature
-    let sig = Signature::now(&get_git_author(), &get_git_email())?;
+    let sig = Signature::now(&name, &email)?;
 
     // Create the commit
     let commit_oid = repo.commit(

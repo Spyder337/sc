@@ -1,14 +1,34 @@
+#![deny(missing_docs)]
+//! # ShellCommander
+use std::{path::PathBuf, sync::Mutex};
+
 use clap::Parser;
-pub mod cli;
-pub mod core;
-pub mod git;
+use commands::{ClapParser, CommandHandler};
+use environment::Environment;
+use lazy_static::lazy_static;
 
-pub use crate::cli::*;
-pub use crate::core::sql::Database;
-pub use crate::git::core::*;
+mod commands;
+mod database;
+mod environment;
 
-fn main() {
-    // display_git_info();
-    let cli = Cli::parse();
-    handle_commands(&cli);
+/// Wrapper type for std::result::Result.
+pub type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
+
+lazy_static! {
+    /// The application directory.
+    pub static ref APP_DIR: PathBuf = {
+        let base = directories::BaseDirs::new().unwrap();
+        base.data_dir().join("ShellCommander").into()
+    };
+    /// The path to the configuration file.
+    pub static ref CONFIG_FILE: PathBuf = APP_DIR.join("config.toml");
+    /// The path to the SQLite database file.
+    pub static ref SQL_FILE: PathBuf = APP_DIR.join("database.db");
+    /// The environment settings.
+    pub static ref ENV: Mutex<Environment> = Mutex::new(Environment::load());
+}
+
+fn main() -> Result<()> {
+    let parser = ClapParser::parse();
+    parser.handle()
 }
