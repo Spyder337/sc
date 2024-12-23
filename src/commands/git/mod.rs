@@ -1,6 +1,6 @@
 mod core;
 
-use core::create_commit;
+use core::{clone_repo, create_commit};
 use std::{
     fs,
     io::{Error, Write},
@@ -58,7 +58,7 @@ impl CommandHandler for GitCommands {
     fn handle(&self) -> crate::Result<()> {
         match self {
             GitCommands::New { name, ignores } => new_repo(name, ignores.clone()),
-            GitCommands::Clone { repo, dir } => todo!(),
+            GitCommands::Clone { repo, dir } => clone_repo(repo, dir),
             GitCommands::List { json } => git_list(json.unwrap_or(false)),
             GitCommands::AddCommit { paths, changes } => {
                 // TODO: Implement proper error handling.

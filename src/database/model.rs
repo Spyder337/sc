@@ -1,6 +1,7 @@
 use crate::database::schema::{quotes, searches};
 use diesel::prelude::*;
 
+/// A google search history item.
 #[derive(Debug, Queryable, AsChangeset, Selectable, Clone)]
 #[diesel(table_name = searches)]
 pub struct Search {
@@ -11,6 +12,9 @@ pub struct Search {
     pub time_stamp: String,
 }
 
+/// A new google search history item.
+///
+/// This struct is used to insert a new search history item into the database.
 #[derive(Insertable)]
 #[diesel(table_name = searches)]
 pub struct NewSearch {
@@ -20,6 +24,7 @@ pub struct NewSearch {
     pub time_stamp: String,
 }
 
+/// A quote.
 #[derive(Debug, Queryable, AsChangeset, Selectable, Clone)]
 #[diesel(table_name = quotes)]
 pub struct Quote {
@@ -28,6 +33,9 @@ pub struct Quote {
     pub author: String,
 }
 
+/// A new quote.
+///
+/// This struct is used to insert a new quote into the database.
 #[derive(Insertable)]
 #[diesel(table_name = quotes)]
 pub struct NewQuote {
