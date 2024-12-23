@@ -42,9 +42,9 @@ pub(crate) enum GitCommands {
     /// Stage files and commit them.
     AddCommit {
         /// File paths to stage.
-        #[arg(required = true, num_args(1..))]
+        #[arg(required = true, num_args(1..), value_delimiter = ',')]
         paths: Vec<String>,
-        #[arg(short = 'c', long)]
+        #[arg(short = 'c', long, value_delimiter = ',')]
         /// Changes made in the commit.
         changes: Option<Vec<String>>,
     },
