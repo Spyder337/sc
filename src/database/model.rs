@@ -1,7 +1,7 @@
 use crate::database::schema::{quotes, searches};
 use diesel::prelude::*;
 
-#[derive(Debug, Queryable, AsChangeset)]
+#[derive(Debug, Queryable, AsChangeset, Selectable, Clone)]
 #[diesel(table_name = searches)]
 pub struct Search {
     pub id: i32,
@@ -20,7 +20,7 @@ pub struct NewSearch {
     pub time_stamp: String,
 }
 
-#[derive(Debug, Queryable, AsChangeset)]
+#[derive(Debug, Queryable, AsChangeset, Selectable, Clone)]
 #[diesel(table_name = quotes)]
 pub struct Quote {
     pub id: i32,

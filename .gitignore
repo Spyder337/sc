@@ -39,3 +39,8 @@ Cargo.lock
 # End of https://www.toptal.com/developers/gitignore/api/visualstudiocode,rust
 
 rsrc/*.db
+
+### Diesel Crate ###
+# Ignore files generated an used by the Diesel crate
+/migrations
+.env
