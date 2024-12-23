@@ -1,11 +1,8 @@
+#![allow(dead_code)]
 use core::str;
 use std::path::Path;
 
-use git2::{
-    Error, ErrorCode, IndexAddOption, Oid, Repository, Signature, StatusOptions, SubmoduleIgnore,
-};
-
-use super::{GIT_AUTHOR, GIT_EMAIL, get_git_author, get_git_email};
+use git2::{Error, ErrorCode, Oid, Repository, Signature, SubmoduleIgnore};
 
 ///
 ///
@@ -477,8 +474,6 @@ pub fn add_files(repo: &mut Repository, paths: &Vec<String>, update: Option<bool
 pub fn create_commit(repo: &Repository, commit_msg: String) -> Result<Oid, git2::Error> {
     // Get the index and write it as a tree
     let mut index = repo.index()?;
-    index.add_all(["*"].iter(), IndexAddOption::DEFAULT, None)?;
-    index.write()?;
     let tree_oid = index.write_tree()?;
     let tree = repo.find_tree(tree_oid)?;
 
@@ -487,7 +482,10 @@ pub fn create_commit(repo: &Repository, commit_msg: String) -> Result<Oid, git2:
     let parent_commit = head.peel_to_commit()?;
 
     // Create a signature
-    let sig = Signature::now(&get_git_author(), &get_git_email())?;
+    let sig = Signature::now(
+        &crate::ENV.lock().unwrap().git_name,
+        &crate::ENV.lock().unwrap().git_email,
+    )?;
 
     // Create the commit
     let commit_oid = repo.commit(
