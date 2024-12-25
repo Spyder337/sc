@@ -16,119 +16,79 @@ cargo install cmd
 
 To develop the crate make sure that the rust nightly toolchain is installed.
 
+[Diesel][repo-diesel] currently manages the servers.
+
+```sh
+diesel migration run
+```
+
+This will generate the sql database file.
+
 ## Usage
 
-Provide usage instructions and examples here. For example, calling the crate from the command line:
+### Git Commands
 
 ```sh
-Quality of life commands.
+A set of command line utilities
 
-Usage: cmd [COMMAND]
+Usage: cmd <COMMAND>
 
 Commands:
-  git         Git repo interactions.
-  web-search  Search google.
-  help        Print this message or the help of the given subcommand(s)
+  web    A set of web utilities
+  git    A set of git utilities
+  env    A set of utilities for interacting with the environment
+  quote
+  help   Print this message or the help of the given subcommand(s)
 
 Options:
-  -h, --help     Print help
-  -V, --version  Print version
+  -h, --help  Print help
 ```
 
-```sh
-Special operators:
-    - "*": Wildcard
-    - "()": Parenthesis/Group
-    - "allintext:": All text is in the website
-    - "-": Exclude operator
-    - "AND|OR": Conditonal search keywords
-    - '"': Search for exact phrases or a word
-    - "site": Restrict a search to a specific site.
-
-Usage: cmd web-search [OPTIONS] <QUERY>
-
-Arguments:
-  <QUERY>
-          The search query that shows up in the google search bar
-
-Options:
-      --open
-
-
-      --site <SITE>
-
-
-      --allintext <ALL_IN_TEXT>
-
-
-  -h, --help
-          Print help (see a summary with '-h')
-```
-
-### Git Commands
+### Git
 
 ```sh
 Usage: cmd git <COMMAND>
 
 Commands:
-  update         Stage changes and commit them.
-  list           List repos in the user git directory.
-  set-dir        Set the repo directory.
-  get-dir        Get the repo directory.
-  fetch-ignore   Fetch a .gitignore file.
-  fetch-ignores  Display valid ignore files.
-  help           Print this message or the help of the given subcommand(s)
+  new         Initialize a new git repository
+  clone       Clone a repository
+  list        List cloned repositories in the `git_dir`
+  add-commit  Stage files and commit them
+  ignore      A set of .gitignore utilities
+  help        Print this message or the help of the given subcommand(s)
 
 Options:
-  -h, --help
-          Print help (see a summary with '-h')
+  -h, --help  Print help
 ```
 
-### Roadmap
+### Web
 
-#### Commands
+```sh
+A set of web utilities
 
-- [x] git **(7/7)**
+Usage: cmd web <COMMAND>
 
-    Contains all the functionality for managing a git repo and easily interacting with repos on disk.
+Commands:
+  search   Search google for a query
+  history  View search history
+  help     Print this message or the help of the given subcommand(s)
 
-  - [x] update
-  - [x] get-dir
-  - [x] set-dir
-  - [x] fetch-ignore
-  - [x] fetch-ignores
-  - [x] list
-  - [x] create empty repo
-- [ ] web-search **(2/2)**
+Options:
+  -h, --help  Print help
+```
 
-    Contains the functionality for performing google search queries.
+```sh
+Usage: cmd web search [OPTIONS] <QUERY>
 
-  - [x] No filter query
-  - [x] Domain filter
-- [ ] welcome **(0/1)**
+Arguments:
+  <QUERY>  Search query
 
-    The message of the day that should be presented when a terminal boots up.
-
-  - [ ] Message of the Day
-- [ ] quotes **(0/4)**
-  
-    The quotes command will have four subcommands. These commands will allow for interacting with a local storage for quotes along with history of previous daily quotes. There will also be a link to a public API for providing quotes for in case the user wants to fetch a new quote.
-
-    A potential providers: [Paper Quotes][api-paper-quotes], [Forbes Thoughts][api-forbes]
-
-    > Note:
-    > Forbes uses an API that provides for the quotes page. It's url is `http://www.forbes.com/forbesapi/thought/uri.json?enrich=true&query=1&relatedlimit=5`
-    >
-    >query=1: Query today
-    >
-    >relatedlimit=5: Only get up to five more related quotes
-
-  - [ ] Daily Quote
-  - [ ] Random Quote
-  - [ ] Saved Quotes
-  - [ ] Online Database
-
-**Progress**: **9/14**
+Options:
+      --site <SITE>            Site to restrict search to
+      --allintext <ALLINTEXT>  Search for text in the page
+      --json <JSON>            Return results in JSON format [possible values: true, false]
+  -h, --help                   Print help
+```
 
 ## Credits
 
@@ -164,7 +124,6 @@ This project is licensed under the [GNU General Public License][license] v3.0. S
 
 [repo-cmd]: https://github.com/Spyder337/cmd
 [repo-shell]: https://github.com/Spyder337/nu-config
-[api-paper-quotes]: https://paperquotes.com
-[api-forbes]: https://www.forbes.com/quotes/1/
+[repo-diesel]: https://diesel.rs
 [license]: https://www.gnu.org/licenses/gpl-3.0.en.html
 [license-file]: LICENSE.md
