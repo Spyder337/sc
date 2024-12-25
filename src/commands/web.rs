@@ -1,5 +1,7 @@
 use clap::Subcommand;
 
+use crate::web::{SearchParams, basic_search, query_string_builder};
+
 use super::CommandHandler;
 /// A set of web utilities.
 #[derive(Debug, Subcommand)]
@@ -27,7 +29,19 @@ pub(crate) enum WebCommands {
 
 impl CommandHandler for WebCommands {
     fn handle(&self) -> crate::Result<()> {
-        todo!()
+        match self {
+            WebCommands::Search {
+                query,
+                site,
+                allintext,
+                json,
+            } => {
+                let query_string = query_string_builder(query, site, allintext);
+                let search = SearchParams::new(&query_string);
+                basic_search(search, &(!json.unwrap_or(false)))
+            }
+            WebCommands::History { command } => command.handle(),
+        }
     }
 }
 
@@ -63,11 +77,21 @@ pub(crate) enum HistoryCommands {
         /// Search for text in the page.
         #[arg(short = None, long)]
         allintext: Option<String>,
+        open: bool,
     },
 }
 
 impl CommandHandler for HistoryCommands {
     fn handle(&self) -> crate::Result<()> {
-        todo!()
+        match self {
+            HistoryCommands::List { to, from } => todo!(),
+            HistoryCommands::Clear { to, from, site } => todo!(),
+            HistoryCommands::Search {
+                query,
+                site,
+                allintext,
+                open,
+            } => todo!(),
+        }
     }
 }

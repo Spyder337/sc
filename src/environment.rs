@@ -20,6 +20,8 @@ pub struct Environment {
     pub git_ignore_url: String,
     /// Database connection string.
     pub conn_str: String,
+    /// API Key for [Custom Search JSON API](https://developers.google.com/custom-search/v1/overview).
+    pub google_search_api_key: String,
 }
 
 impl Environment {
@@ -87,6 +89,7 @@ impl Default for Environment {
             git_dir: "~/Code".into(),
             git_ignore_url: "https://www.toptal.com/developers/gitignore/api/".into(),
             conn_str: crate::SQL_FILE.display().to_string(),
+            google_search_api_key: "google_search_api_key".into(),
         }
     }
 }

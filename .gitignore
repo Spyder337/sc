@@ -42,5 +42,4 @@ rsrc/*.db
 
 ### Diesel Crate ###
 # Ignore files generated an used by the Diesel crate
-/migrations
 .env
