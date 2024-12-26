@@ -1,6 +1,9 @@
 use clap::Subcommand;
 
-use crate::web::{SearchParams, basic_search, query_string_builder};
+use crate::{
+    database::{self, model::NewSearch},
+    web::{SearchParams, basic_search, query_string_builder},
+};
 
 use super::CommandHandler;
 /// A set of web utilities.
@@ -38,6 +41,18 @@ impl CommandHandler for WebCommands {
             } => {
                 let query_string = query_string_builder(query, site, allintext);
                 let search = SearchParams::new(&query_string);
+                let new_search = NewSearch {
+                    query: query.clone(),
+                    website: site.clone(),
+                    allintext: allintext.clone(),
+                    time_stamp: chrono::Local::now().to_string(),
+                };
+                let res = database::sqlite::insert_search(new_search);
+
+                if res.is_err() {
+                    return Err(res.err().unwrap());
+                }
+
                 basic_search(search, &(!json.unwrap_or(false)))
             }
             WebCommands::History { command } => command.handle(),
@@ -77,21 +92,58 @@ pub(crate) enum HistoryCommands {
         /// Search for text in the page.
         #[arg(short = None, long)]
         allintext: Option<String>,
-        open: bool,
     },
 }
 
 impl CommandHandler for HistoryCommands {
     fn handle(&self) -> crate::Result<()> {
         match self {
-            HistoryCommands::List { to, from } => todo!(),
-            HistoryCommands::Clear { to, from, site } => todo!(),
+            HistoryCommands::List { to, from } => history_list(to.clone(), from.clone()),
+            HistoryCommands::Clear { to, from, site } => {
+                history_clear(to.clone(), from.clone(), site.clone())
+            }
             HistoryCommands::Search {
                 query,
                 site,
                 allintext,
-                open,
-            } => todo!(),
+            } => history_search(query.clone(), site.clone(), allintext.clone()),
         }
     }
+}
+
+fn history_list(to: Option<String>, from: Option<String>) -> crate::Result<()> {
+    let res = database::sqlite::get_search_range(from.unwrap_or_default(), to.unwrap_or_default());
+    if res.is_err() {
+        return Err(res.err().unwrap());
+    }
+    for search in res.unwrap() {
+        println!("{:?}", search);
+    }
+    Ok(())
+}
+
+fn history_clear(
+    to: Option<String>,
+    from: Option<String>,
+    _site: Option<String>,
+) -> crate::Result<()> {
+    let res =
+        database::sqlite::delete_search_range(from.unwrap_or_default(), to.unwrap_or_default());
+    if res.is_err() {
+        return Err(res.err().unwrap());
+    }
+    Ok(())
+}
+
+fn history_search(
+    query: String,
+    site: Option<String>,
+    allintext: Option<String>,
+) -> crate::Result<()> {
+    let res = database::sqlite::get_search_by(query, site, allintext);
+    if res.is_err() {
+        return Err(res.err().unwrap());
+    }
+    println!("{:?}", res.unwrap());
+    Ok(())
 }
