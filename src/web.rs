@@ -2,6 +2,8 @@ use std::collections::HashMap;
 
 use reqwest::Url;
 
+use crate::ENV;
+
 /// Search parameters for a google web search.
 pub struct SearchParams {
     pub url: String,
@@ -13,6 +15,26 @@ impl SearchParams {
         let mut s = Self::default();
         s.args.insert("q".to_string(), query.clone());
         s
+    }
+
+    /// Creates a new set of search parameters that is compatible with the
+    /// Google Custom Search JSON API.
+    pub fn new_json(query: &String) -> Self {
+        let mut s = Self::default();
+        s.args.insert("q".to_string(), query.clone());
+        s.add_api_data();
+        s
+    }
+
+    pub fn add_api_data(&mut self) {
+        self.args.insert(
+            "key".to_string(),
+            ENV.lock().unwrap().google_search_api_key.clone(),
+        );
+        self.args.insert(
+            "cx".to_string(),
+            ENV.lock().unwrap().google_search_engine_id.clone(),
+        );
     }
 }
 
@@ -57,7 +79,8 @@ fn open_url(url: &str) -> crate::Result<()> {
 /// Perform a basic search using the given search parameters.
 ///
 /// Optionally open the search results in the default browser.
-pub fn basic_search(options: SearchParams, open: &bool) -> crate::Result<()> {
+pub fn basic_search(mut options: SearchParams, open: &bool) -> crate::Result<()> {
+    options.add_api_data();
     let url: Url = options.into();
     println!("Url: {}", url);
     if *open {
