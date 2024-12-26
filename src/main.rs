@@ -10,6 +10,7 @@ use lazy_static::lazy_static;
 mod commands;
 mod database;
 mod environment;
+mod web;
 
 /// Wrapper type for std::result::Result.
 pub type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;

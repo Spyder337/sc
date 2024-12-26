@@ -23,6 +23,7 @@ pub enum Commands {
         command: EnvCommands,
     },
     Quote,
+    Completions,
 }
 
 /// A trait that indicates a struct encapsulates a command.
@@ -46,6 +47,10 @@ impl CommandHandler for ClapParser {
             Commands::Env { command } => command.handle(),
             Commands::Quote => {
                 println!("Quote command not implemented.");
+                Ok(())
+            }
+            Commands::Completions => {
+                println!("Completions command not implemented.");
                 Ok(())
             }
         }
