@@ -43,8 +43,17 @@ pub struct NewQuote {
     pub author: String,
 }
 
+/// A daily quote.
 pub struct DailyQuote {
     pub id: i32,
     pub quote_id: i32,
-    pub time_stamp: chrono::DateTime<chrono::Local>,
+    pub time_stamp: chrono::NaiveDateTime,
+}
+
+/// A new daily quote.
+///
+/// This struct is used to insert a new daily quote into the database.
+pub struct NewDailyQuote {
+    pub quote_id: i32,
+    pub time_stamp: chrono::NaiveDateTime,
 }
