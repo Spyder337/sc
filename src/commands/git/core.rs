@@ -282,16 +282,28 @@ pub fn clone_repo(url: &str, dir: &Option<String>) -> crate::Result<()> {
 ///
 
 /// Add files to the git repository.
+///
+/// repo: Repository instance.
 /// paths: Path specs.
-pub fn add_files(repo: &mut Repository, paths: &Vec<String>, update: Option<bool>) {
+/// update: Update the index rather than
+pub fn add_files(paths: &Vec<String>, update: Option<bool>) -> crate::Result<usize> {
+    let repo = Repository::open(".").unwrap();
     let mut index = repo.index().unwrap();
     let is_update = update.unwrap_or(false);
+    let items_added = RefCell::new(0 as usize);
     let cb = &mut |path: &Path, _matched_spec: &[u8]| -> i32 {
         let status = repo.status_file(path).unwrap();
         let ret = if status.contains(git2::Status::WT_MODIFIED)
             || status.contains(git2::Status::WT_NEW)
+            || status.contains(git2::Status::WT_RENAMED)
+            || status.contains(git2::Status::WT_TYPECHANGE)
+            || status.contains(git2::Status::WT_DELETED)
         {
-            println!("Add '{}'", path.display());
+            let mut cnt = items_added.borrow_mut();
+            *cnt = *cnt + 1;
+            println!("Adding file: {}", path.display());
+            println!("Status: {:?}", status);
+            println!("File: {cnt:?}");
             0
         } else {
             1
@@ -312,7 +324,13 @@ pub fn add_files(repo: &mut Repository, paths: &Vec<String>, update: Option<bool
         let _ = index.add_all(paths, git2::IndexAddOption::DEFAULT, cb);
     }
 
+    // if items_added.borrow().eq(&0) {
+    //     return Err(Box::new(Error::from_str("No files changed.")));
+    // }
+
     index.write().unwrap();
+
+    Ok(*items_added.borrow())
 }
 
 /// Create a new commit that references the current HEAD.

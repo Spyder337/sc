@@ -10,7 +10,7 @@ use std::{
 use clap::Subcommand;
 use git2::{Repository, Status, StatusOptions};
 
-use crate::{ENV, environment::time_now};
+use crate::{ENV, commands, environment::time_now};
 
 use super::CommandHandler;
 /// A set of git utilities.
@@ -44,9 +44,9 @@ pub(crate) enum GitCommands {
         /// File paths to stage.
         #[arg(required = true, num_args(1..), value_delimiter = ',')]
         paths: Vec<String>,
-        #[arg(short = 'c', long, value_delimiter = ',')]
+        #[arg(short = 'c', long, required = true, num_args(1..), value_delimiter = ',')]
         /// Changes made in the commit.
-        changes: Option<Vec<String>>,
+        changes: Vec<String>,
     },
     Ignore {
         #[command(subcommand)]
@@ -62,8 +62,12 @@ impl CommandHandler for GitCommands {
             GitCommands::List { json } => git_list(json.unwrap_or(false)),
             GitCommands::AddCommit { paths, changes } => {
                 // TODO: Implement proper error handling.
-                add_commit(&Some(paths.clone()), &None, changes);
-                Ok(())
+                let res = add_commit(&Some(paths.clone()), &None, changes);
+                if res.is_err() {
+                    Err(res.err().unwrap())
+                } else {
+                    Ok(())
+                }
             }
             GitCommands::Ignore { command } => command.handle(),
         }
@@ -108,31 +112,22 @@ fn new_repo(name: &str, ignores: Option<Vec<String>>) -> crate::Result<()> {
     Ok(())
 }
 
-///  # Example Message
-///  ```shell
-/// $ cmd git update -p "path/to/stage" -c "Change 1", "Change 2", "Change 3"
+/// Add and commit files to the repository.
 ///
-/// <Main Change>
-///
-/// <Time Stamp>
-///
-/// Changes:
-/// - Change 1
-/// - Change 2
-/// - Change 3
-///
-/// <Files Changed>
-/// ```
+/// If paths is None then all files in the repository will be staged.
+/// If remove is true then the files will be removed from the staging area.
+/// If changes is empty then the commit message will be a timestamp.    
 fn add_commit(
     paths: &Option<Vec<String>>,
     remove: &Option<bool>,
-    changes: &Option<Vec<String>>,
-) -> () {
+    changes: &Vec<String>,
+) -> crate::Result<()> {
     let repo = Repository::open(".");
     if repo.is_err() {
-        println!("Was not able to open the repo.\n{:?}", repo.err());
-        return;
+        return Err(Box::new(repo.err().unwrap()));
     }
+
+    println!("Paths: {paths:?}");
 
     let path_specs = paths.clone().unwrap_or(vec![".".to_string()]);
 
@@ -149,7 +144,14 @@ fn add_commit(
         // println!("Staging new files...");
 
         //  Equivalent to git add --update
-        crate::commands::git::core::add_files(r, &path_specs, None);
+        let res = commands::git::core::add_files(&path_specs, None);
+
+        if let Ok(_) = res {
+            println!("Files staged successfully.");
+        } else {
+            return Err(res.err().unwrap());
+        }
+
         //  Git Command: git stage $path
         //  Use `git status -s` to generate an organized change list.
         let mut commit_msg = String::with_capacity(1536);
@@ -163,20 +165,16 @@ fn add_commit(
 
         //  If the changes are not provided then we generate a timestamp for the
         // first line of the commit message.
-        if changes.is_none() {
+        if changes.is_empty() {
             main_change = format!("Updated: {}", time_str).to_string();
         } else {
-            main_change = changes.as_ref().unwrap().first().unwrap().to_string();
-            let change_list = changes.as_ref().unwrap();
-            if change_list.len() > 1 {
-                for i in 1..change_list.len() {
-                    if change_list[i].is_empty() {
-                        continue;
-                    }
-                    change_msg.push_str(&format!("- {}\n", change_list[i]));
+            main_change = changes.first().unwrap().to_string();
+            let change_list = changes.clone();
+            for i in 1..change_list.len() {
+                if change_list[i].is_empty() {
+                    continue;
                 }
-            } else {
-                change_msg = String::new();
+                change_msg.push_str(&format!("- {}\n", change_list[i]));
             }
         }
 
@@ -185,7 +183,7 @@ fn add_commit(
         commit_msg.push_str("\n\n");
 
         //  If there are changes then append them.
-        if changes.is_some() {
+        if changes.len() > 1 {
             commit_msg.push_str(format!("Updated: {}\n", time_str).as_str());
             if !change_msg.is_empty() {
                 commit_msg.push_str("\nChanges:\n");
@@ -221,8 +219,10 @@ fn add_commit(
         if let Ok(_) = res {
             println!("Commit was successful.");
         } else {
-            println!("Commit failed.\n{:?}", res.err());
+            return Err(Box::new(res.err().unwrap()));
         }
+
+        Ok(())
     }
 }
 
