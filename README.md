@@ -16,7 +16,17 @@ cargo install cmd
 
 To develop the crate make sure that the rust nightly toolchain is installed.
 
+### Diesel Setup
+
 [Diesel][repo-diesel] currently manages the servers.
+
+Create a `.env` file in the cargo directory that looks like
+
+```plain
+DATABASE_URL=path_to_db
+```
+
+#### Database Generation
 
 ```sh
 diesel migration run
