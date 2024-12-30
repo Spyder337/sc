@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS searches (
     -- Required search term
     allintext TEXT,
     -- Time the search was created
-    time_stamp DATE NOT NULL
+    time_stamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 CREATE TABLE IF NOT EXISTS quotes (
     id INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
@@ -26,9 +26,9 @@ CREATE TABLE IF NOT EXISTS tasks(
     -- in progress, completed, incompleted
     status TEXT NOT NULL,
     -- time the task was created
-    time_stamp DATE NOT NULL,
+    time_stamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     -- time the task is due
-    due_date DATE,
+    due_date TIMESTAMP,
     -- renewal duration
     renewal_duration INT
 );
@@ -40,4 +40,10 @@ CREATE TABLE IF NOT EXISTS task_relations(
     child_id INT NOT NULL,
     FOREIGN KEY (parent_id) REFERENCES tasks(id),
     FOREIGN KEY (child_id) REFERENCES tasks(id)
+);
+CREATE TABLE IF NOT EXISTS daily_quotes(
+    id INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
+    quote_id INT NOT NULL,
+    time_stamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    FOREIGN KEY (quote_id) REFERENCES quotes(id)
 );

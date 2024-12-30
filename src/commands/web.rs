@@ -45,7 +45,6 @@ impl CommandHandler for WebCommands {
                     query: query.clone(),
                     website: site.clone(),
                     allintext: allintext.clone(),
-                    time_stamp: chrono::Local::now().to_string(),
                 };
                 let res = database::sqlite::insert_search(new_search);
 

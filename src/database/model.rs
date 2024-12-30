@@ -1,4 +1,5 @@
-use crate::database::schema::{quotes, searches};
+use crate::database::schema::{daily_quotes, quotes, searches};
+use chrono::NaiveDateTime;
 use diesel::prelude::*;
 
 /// A google search history item.
@@ -9,7 +10,8 @@ pub struct Search {
     pub query: String,
     pub website: Option<String>,
     pub allintext: Option<String>,
-    pub time_stamp: String,
+    #[diesel(sql_type = Timestamp)]
+    pub time_stamp: NaiveDateTime,
 }
 
 /// A new google search history item.
@@ -21,7 +23,6 @@ pub struct NewSearch {
     pub query: String,
     pub website: Option<String>,
     pub allintext: Option<String>,
-    pub time_stamp: String,
 }
 
 /// A quote.
@@ -44,6 +45,8 @@ pub struct NewQuote {
 }
 
 /// A daily quote.
+#[derive(Debug, Queryable, AsChangeset, Selectable, Clone)]
+#[diesel(table_name = daily_quotes)]
 pub struct DailyQuote {
     pub id: i32,
     pub quote_id: i32,
@@ -53,7 +56,8 @@ pub struct DailyQuote {
 /// A new daily quote.
 ///
 /// This struct is used to insert a new daily quote into the database.
+#[derive(Insertable)]
+#[diesel(table_name = daily_quotes)]
 pub struct NewDailyQuote {
     pub quote_id: i32,
-    pub time_stamp: chrono::NaiveDateTime,
 }
