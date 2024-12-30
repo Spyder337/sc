@@ -4,7 +4,7 @@ use std::{
     path::PathBuf,
 };
 
-use chrono::DateTime;
+use chrono::{DateTime, NaiveDateTime};
 use serde::{Deserialize, Serialize};
 
 /// Environment settings for the application.
@@ -49,7 +49,7 @@ impl Environment {
 
                 match res {
                     Ok(_) => {
-                        let env: Environment = toml::from_str(&buf).unwrap();
+                        let env: Environment = Self::deserialize(&buf);
                         env
                     }
                     Err(_) => {
@@ -70,6 +70,10 @@ impl Environment {
         toml::to_string(&self).unwrap()
     }
 
+    pub fn deserialize(toml: &str) -> Self {
+        toml::from_str(toml).unwrap()
+    }
+
     /// Creates the config file.
     ///
     /// If the config file already exists, it is overwritten.
@@ -78,7 +82,7 @@ impl Environment {
             std::fs::create_dir_all(crate::APP_DIR.clone()).unwrap();
         }
         let mut file = File::create(crate::CONFIG_FILE.clone()).unwrap();
-        let toml = toml::to_string(&self).unwrap();
+        let toml = self.serialize();
         file.write_all(toml.as_bytes()).unwrap();
     }
 }
@@ -97,6 +101,6 @@ impl Default for Environment {
     }
 }
 
-pub fn time_now() -> DateTime<chrono::Local> {
-    chrono::Local::now()
+pub fn time_now() -> NaiveDateTime {
+    chrono::Utc::now().naive_utc()
 }

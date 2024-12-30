@@ -317,16 +317,18 @@ pub fn add_files(paths: &Vec<String>, update: Option<bool>) -> crate::Result<usi
         Some(cb as &mut git2::IndexMatchedPath)
     };
 
+    //  Result of editing the index.
+    let res: Result<(), Error>;
+
     if is_update {
-        index.update_all(paths, cb).unwrap();
+        res = index.update_all(paths, cb);
     } else {
-        //  TODO: Implement Error handling for adding files.
-        let _ = index.add_all(paths, git2::IndexAddOption::DEFAULT, cb);
+        res = index.add_all(paths, git2::IndexAddOption::DEFAULT, cb);
     }
 
-    // if items_added.borrow().eq(&0) {
-    //     return Err(Box::new(Error::from_str("No files changed.")));
-    // }
+    if res.is_err() {
+        return Err(res.err().unwrap().into());
+    }
 
     index.write().unwrap();
 

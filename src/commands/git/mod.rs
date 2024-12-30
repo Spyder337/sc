@@ -162,10 +162,11 @@ fn add_commit(
         let main_change: String;
         let time = time_now();
         let time_str = time.format("%Y-%m-%d %H:%M:%S");
+        let has_changes = changes.len() > 1;
 
         //  If the changes are not provided then we generate a timestamp for the
         // first line of the commit message.
-        if changes.is_empty() {
+        if !has_changes {
             main_change = format!("Updated: {}", time_str).to_string();
         } else {
             main_change = changes.first().unwrap().to_string();
@@ -183,7 +184,7 @@ fn add_commit(
         commit_msg.push_str("\n\n");
 
         //  If there are changes then append them.
-        if changes.len() > 1 {
+        if has_changes {
             commit_msg.push_str(format!("Updated: {}\n", time_str).as_str());
             if !change_msg.is_empty() {
                 commit_msg.push_str("\nChanges:\n");
