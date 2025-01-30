@@ -4,7 +4,7 @@ use std::{
     path::PathBuf,
 };
 
-use chrono::{DateTime, NaiveDateTime};
+use chrono::NaiveDateTime;
 use serde::{Deserialize, Serialize};
 
 /// Environment settings for the application.
