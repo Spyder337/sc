@@ -125,16 +125,24 @@ fn set_env(
         println!("Git name set to: {}", ENV.lock().unwrap().git_name);
     }
     if let Some(git_email) = git_email {
+        println!("Setting git email to: {}", git_email);
         ENV.lock().unwrap().git_email = git_email.clone();
+        println!("Git email set to: {}", ENV.lock().unwrap().git_email);
     }
     if let Some(git_dir) = git_dir {
+        println!("Setting git directory to: {}", git_dir);
         ENV.lock().unwrap().git_dir = git_dir.clone().into();
+        println!("Git directory set to: {}", ENV.lock().unwrap().git_dir.display());
     }
     if let Some(git_ignore_url) = git_ignore_url {
+        println!("Setting git ignore url to: {}", git_ignore_url);
         ENV.lock().unwrap().git_ignore_url = git_ignore_url.clone();
+        println!("Git ignore url set to: {}", ENV.lock().unwrap().git_ignore_url);
     }
     if let Some(conn_str) = conn_str {
+        println!("Setting connection string to: {}", conn_str);
         ENV.lock().unwrap().conn_str = conn_str.clone();
+        println!("Connection string set to: {}", ENV.lock().unwrap().conn_str);
     }
     ENV.lock().unwrap().save();
     Ok(())
