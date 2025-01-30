@@ -26,6 +26,10 @@ pub(crate) enum EnvCommands {
         /// Database connection string.
         #[arg(short = None, long)]
         conn_str: Option<String>,
+        #[arg(short = None, long)]
+        google_search_api_key: Option<String>,
+        #[arg(short = None, long)]
+        google_search_engine_id: Option<String>,
     },
     /// Get an environment variable.
     ///
@@ -46,6 +50,10 @@ pub(crate) enum EnvCommands {
         /// Database connection string.
         #[arg(short = None, long)]
         conn_str: bool,
+        #[arg(short = None, long)]
+        google_search_api_key: bool,
+        #[arg(short = None, long)]
+        google_search_engine_id: bool,
     },
     /// Reset an environment variable.
     ///
@@ -84,14 +92,18 @@ impl CommandHandler for EnvCommands {
                 git_dir,
                 git_ignore_url,
                 conn_str,
-            } => set_env(git_name, git_email, git_dir, git_ignore_url, conn_str),
+                google_search_api_key,
+                google_search_engine_id
+            } => set_env(git_name, git_email, git_dir, git_ignore_url, conn_str, google_search_api_key, google_search_engine_id),
             EnvCommands::Get {
                 git_name,
                 git_email,
                 git_dir,
                 git_ignore_url,
                 conn_str,
-            } => get_env(git_name, git_email, git_dir, git_ignore_url, conn_str),
+                google_search_api_key,
+                google_search_engine_id
+            } => get_env(git_name, git_email, git_dir, git_ignore_url, conn_str, google_search_api_key, google_search_engine_id),
             EnvCommands::Reset {
                 git_name,
                 git_email,
@@ -118,6 +130,8 @@ fn set_env(
     git_dir: &Option<String>,
     git_ignore_url: &Option<String>,
     conn_str: &Option<String>,
+    google_search_api_key: &Option<String>,
+    google_search_engine_id: &Option<String>,
 ) -> crate::Result<()> {
     if let Some(git_name) = git_name {
         println!("Setting git name to: {}", git_name);
@@ -144,6 +158,16 @@ fn set_env(
         ENV.lock().unwrap().conn_str = conn_str.clone();
         println!("Connection string set to: {}", ENV.lock().unwrap().conn_str);
     }
+    if let Some(google_search_api_key) = google_search_api_key {
+        println!("Setting Google Search API Key to: {}", google_search_api_key);
+        ENV.lock().unwrap().google_search_api_key = google_search_api_key.clone();
+        println!("Google Search API Key set to: {}", ENV.lock().unwrap().google_search_api_key);
+    }
+    if let Some(google_search_engine_id) = google_search_engine_id {
+        println!("Setting Google Search Engine ID to: {}", google_search_engine_id);
+        ENV.lock().unwrap().google_search_engine_id = google_search_engine_id.clone();
+        println!("Google Search Engine ID set to: {}", ENV.lock().unwrap().google_search_engine_id);
+    }
     ENV.lock().unwrap().save();
     Ok(())
 }
@@ -154,9 +178,11 @@ fn get_env(
     git_dir: &bool,
     git_ignore_url: &bool,
     conn_str: &bool,
+    google_search_api_key: &bool,
+    google_search_engine_id: &bool,
 ) -> crate::Result<()> {
     let mut add_all = false;
-    if !git_name && !git_email && !git_dir && !git_ignore_url && !conn_str {
+    if !git_name && !git_email && !git_dir && !git_ignore_url && !conn_str && !google_search_api_key && !google_search_engine_id {
         add_all = true;
     }
     let mut env_str = String::with_capacity(256);
@@ -182,6 +208,18 @@ fn get_env(
         env_str.push_str(&format!(
             "Connection String: {}\n",
             ENV.lock().unwrap().conn_str
+        ));
+    }
+    if add_all || *google_search_api_key {
+        env_str.push_str(&format!(
+            "Google Search API Key: {}\n",
+            ENV.lock().unwrap().google_search_api_key
+        ));
+    }
+    if add_all || *google_search_engine_id {
+        env_str.push_str(&format!(
+            "Google Search Engine ID: {}\n",
+            ENV.lock().unwrap().google_search_engine_id
         ));
     }
     print!("{}", env_str);
