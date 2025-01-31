@@ -17,8 +17,8 @@ fn establish_connection() -> DbResult<SqliteConnection> {
 fn random_i32(max: i32) -> i32 {
     use rand::Rng;
 
-    let mut rng = rand::thread_rng();
-    rng.gen_range(0..max)
+    let mut rng = rand::rng();
+    rng.random_range(0..max)
 }
 
 /// Get all quotes from the database.
