@@ -102,7 +102,7 @@ Options:
 
 ## Credits
 
-List any contributors, third-party libraries, or other resources you want to acknowledge here.
+Git integrations use some code from [Git2][git2-example] examples.
 
 ### Dependencies
 
@@ -134,5 +134,6 @@ This project is licensed under the [GNU General Public License][license] v3.0. S
 [repo-cmd]: https://github.com/Spyder337/cmd
 [repo-shell]: https://github.com/Spyder337/nu-config
 [repo-diesel]: https://diesel.rs
+[git2-example]: https://github.com/rust-lang/git2-rs/blob/master/examples
 [license]: https://www.gnu.org/licenses/gpl-3.0.en.html
 [license-file]: LICENSE.md
