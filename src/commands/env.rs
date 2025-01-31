@@ -110,7 +110,9 @@ impl CommandHandler for EnvCommands {
                 git_dir,
                 git_ignore_url,
                 conn_str,
-            } => reset_env(git_name, git_email, git_dir, git_ignore_url, conn_str),
+                google_search_api_key,
+                google_search_engine_id
+            } => reset_env(git_name, git_email, git_dir, git_ignore_url, conn_str, google_search_api_key, google_search_engine_id),
             EnvCommands::Save => {
                 crate::ENV.lock().unwrap().save();
                 Ok(())
@@ -271,24 +273,33 @@ fn reset_env(
     git_dir: &bool,
     git_ignore_url: &bool,
     conn_str: &bool,
+    google_search_api_key: &bool,
+    google_search_engine_id: &bool,
 ) -> crate::Result<()> {
-    let env = Environment::default();
+    let default_env = Environment::default();
+    let env = &mut ENV.lock().unwrap();
     if *git_name {
-        ENV.lock().unwrap().git_name = env.git_name;
+        env.git_name = default_env.git_name;
     }
     if *git_email {
-        ENV.lock().unwrap().git_email = env.git_email;
+        env.git_email = default_env.git_email;
     }
     if *git_dir {
-        ENV.lock().unwrap().git_dir = env.git_dir;
+        env.git_dir = default_env.git_dir;
     }
     if *git_ignore_url {
-        ENV.lock().unwrap().git_ignore_url = env.git_ignore_url;
+        env.git_ignore_url = default_env.git_ignore_url;
     }
     if *conn_str {
-        ENV.lock().unwrap().conn_str = env.conn_str;
+        env.conn_str = default_env.conn_str;
     }
-    ENV.lock().unwrap().save();
+    if *google_search_api_key {
+        env.google_search_api_key = default_env.google_search_api_key;
+    }
+    if *google_search_engine_id {
+        env.google_search_engine_id = default_env.google_search_engine_id;
+    }
+    env.save();
     Ok(())
 }
 
