@@ -85,6 +85,8 @@ pub(crate) enum EnvCommands {
     Load,
     /// Print the program's file locations.
     Files,
+    /// Generate a .env file.
+    GenerateDotEnv,
 }
 
 impl CommandHandler for EnvCommands {
@@ -126,6 +128,10 @@ impl CommandHandler for EnvCommands {
                 Ok(())
             }
             EnvCommands::Files => get_files(),
+            EnvCommands::GenerateDotEnv => {
+                let _ = crate::database::generate_dotenv();
+                Ok(())
+            }
         }
     }
 }

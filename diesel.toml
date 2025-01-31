@@ -6,4 +6,4 @@ file = "src/database/schema.rs"
 custom_type_derives = ["diesel::query_builder::QueryId", "Clone"]
 
 [migrations_directory]
-dir = "/home/spyder/Code/Spyder337/app/migrations"
+dir = "migrations"
