@@ -133,43 +133,71 @@ fn set_env(
     google_search_api_key: &Option<String>,
     google_search_engine_id: &Option<String>,
 ) -> crate::Result<()> {
-    use crate::COLORS;
+    let env = &mut ENV.lock().unwrap();
     if let Some(git_name) = git_name {
-        println!("Setting {}git name{} to: {}", COLORS["magenta"], COLORS["clear"], git_name);
-        ENV.lock().unwrap().git_name = git_name.clone();
-        println!("Git name set to: {}", ENV.lock().unwrap().git_name);
+        println!("Setting {} to: {}", 
+            apply_color("magenta", "Git User Name"), 
+            git_name);
+        env.git_name = git_name.clone();
+        println!("{} set to: {}",
+            apply_color("magenta", "Git User Name"), 
+            env.git_name);
     }
     if let Some(git_email) = git_email {
-        println!("Setting git email to: {}", git_email);
-        ENV.lock().unwrap().git_email = git_email.clone();
-        println!("Git email set to: {}", ENV.lock().unwrap().git_email);
+        println!("Setting {} to: {}", 
+            apply_color("magenta", "Git Email"), 
+            git_email);
+        env.git_email = git_email.clone();
+        println!("{} set to: {}",
+            apply_color("magenta", "Git Email"),
+            env.git_email);
     }
     if let Some(git_dir) = git_dir {
-        println!("Setting git directory to: {}", git_dir);
-        ENV.lock().unwrap().git_dir = git_dir.clone().into();
-        println!("Git directory set to: {}", ENV.lock().unwrap().git_dir.display());
+        println!("Setting {} to: {}", 
+            apply_color("magenta", "Git Directory"), 
+            git_dir);
+        env.git_dir = git_dir.clone().into();
+        println!("{} set to: {}",
+            apply_color("magenta", "Git Directory"), 
+            env.git_dir.display());
     }
     if let Some(git_ignore_url) = git_ignore_url {
-        println!("Setting git ignore url to: {}", git_ignore_url);
-        ENV.lock().unwrap().git_ignore_url = git_ignore_url.clone();
-        println!("Git ignore url set to: {}", ENV.lock().unwrap().git_ignore_url);
+        println!("Setting {} to: {}", 
+            apply_color("magenta", "Git Ignore URL"), 
+            git_ignore_url);
+        env.git_ignore_url = git_ignore_url.clone();
+        println!("{} set to: {}",
+            apply_color("magenta", "Git Ignore URL"), 
+            env.git_ignore_url);
     }
     if let Some(conn_str) = conn_str {
-        println!("Setting connection string to: {}", conn_str);
-        ENV.lock().unwrap().conn_str = conn_str.clone();
-        println!("Connection string set to: {}", ENV.lock().unwrap().conn_str);
+        println!("Setting {} to: {}", 
+            apply_color("magenta", "Connection String"), 
+            conn_str);
+        env.conn_str = conn_str.clone();
+        println!("{} set to: {}",
+            apply_color("magenta", "Connection String"), 
+            env.conn_str);
     }
     if let Some(google_search_api_key) = google_search_api_key {
-        println!("Setting Google Search API Key to: {}", google_search_api_key);
-        ENV.lock().unwrap().google_search_api_key = google_search_api_key.clone();
-        println!("Google Search API Key set to: {}", ENV.lock().unwrap().google_search_api_key);
+        println!("Setting {} to: {}", 
+            apply_color("magenta", "Google Search API Key"), 
+            google_search_api_key);
+        env.google_search_api_key = google_search_api_key.clone();
+        println!("{} set to: {}",
+            apply_color("magenta", "Google Search API Key"), 
+            env.google_search_engine_id);
     }
     if let Some(google_search_engine_id) = google_search_engine_id {
-        println!("Setting Google Search Engine ID to: {}", google_search_engine_id);
-        ENV.lock().unwrap().google_search_engine_id = google_search_engine_id.clone();
-        println!("Google Search Engine ID set to: {}", ENV.lock().unwrap().google_search_engine_id);
+        println!("Setting {} to: {}", 
+            apply_color("magenta", "Google Search Engine ID"), 
+            google_search_engine_id);
+        env.google_search_engine_id = google_search_engine_id.clone();
+        println!("{} set to: {}",
+            apply_color("magenta", "Google Search Engine ID"), 
+            env.google_search_engine_id);
     }
-    ENV.lock().unwrap().save();
+    env.save();
     Ok(())
 }
 
