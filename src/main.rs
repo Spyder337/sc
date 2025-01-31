@@ -12,6 +12,7 @@ mod database;
 mod environment;
 mod web;
 mod colors;
+mod greeting;
 
 /// Wrapper type for std::result::Result.
 pub type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;

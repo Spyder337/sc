@@ -24,6 +24,8 @@ pub enum Commands {
     },
     Quote,
     Completions,
+    /// Message of the day.
+    Welcome,
 }
 
 /// A trait that indicates a struct encapsulates a command.
@@ -51,6 +53,10 @@ impl CommandHandler for ClapParser {
             }
             Commands::Completions => {
                 println!("Completions command not implemented.");
+                Ok(())
+            }
+            Commands::Welcome => {
+                println!("{}", crate::greeting::welcome_msg());
                 Ok(())
             }
         }
