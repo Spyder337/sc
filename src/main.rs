@@ -20,7 +20,7 @@ lazy_static! {
     /// The application directory.
     pub static ref APP_DIR: PathBuf = {
         let base = directories::BaseDirs::new().unwrap();
-        base.data_dir().join("ShellCommander").into()
+        base.data_dir().join("ShellCommander")
     };
     /// The path to the configuration file.
     pub static ref CONFIG_FILE: PathBuf = APP_DIR.join("config.toml");

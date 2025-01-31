@@ -74,6 +74,10 @@ pub(crate) enum EnvCommands {
         /// Database connection string.
         #[arg(short = None, long)]
         conn_str: bool,
+        #[arg(short = None, long)]
+        google_search_api_key: bool,
+        #[arg(short = None, long)]
+        google_search_engine_id: bool,
     },
     /// Save the environment settings.
     Save,

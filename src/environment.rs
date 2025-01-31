@@ -30,7 +30,7 @@ impl Environment {
     /// Saves the environment settings.
     ///
     /// The old settings are overwritten.
-    pub fn save(&self) -> () {
+    pub fn save(&self) {
         self.create_file();
     }
 
@@ -77,7 +77,7 @@ impl Environment {
     /// Creates the config file.
     ///
     /// If the config file already exists, it is overwritten.
-    fn create_file(&self) -> () {
+    fn create_file(&self) {
         if !crate::APP_DIR.exists() {
             std::fs::create_dir_all(crate::APP_DIR.clone()).unwrap();
         }

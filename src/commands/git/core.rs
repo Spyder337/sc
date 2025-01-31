@@ -241,7 +241,7 @@ pub fn clone_repo(url: &str, dir: &Option<String>) -> crate::Result<()> {
     cb.transfer_progress(|stats| {
         let mut state = state.borrow_mut();
         state.progress = Some(stats.to_owned());
-        print(&mut *state);
+        print(&mut state);
         true
     });
 
@@ -252,7 +252,7 @@ pub fn clone_repo(url: &str, dir: &Option<String>) -> crate::Result<()> {
         state.path = path.map(|p| p.to_path_buf());
         state.current = cur;
         state.total = total;
-        print(&mut *state);
+        print(&mut state);
     });
 
     //  Create the fetch options and the callback.
@@ -270,7 +270,7 @@ pub fn clone_repo(url: &str, dir: &Option<String>) -> crate::Result<()> {
     match res {
         Ok(_repo) => Ok(()),
         Err(e) => {
-            return Err(e.into());
+            Err(e.into())
         }
     }
 }
@@ -290,7 +290,7 @@ pub fn add_files(paths: &Vec<String>, update: Option<bool>) -> crate::Result<usi
     let repo = Repository::open(".").unwrap();
     let mut index = repo.index().unwrap();
     let is_update = update.unwrap_or(false);
-    let items_added = RefCell::new(0 as usize);
+    let items_added = RefCell::new(0_usize);
     let cb = &mut |path: &Path, _matched_spec: &[u8]| -> i32 {
         let status = repo.status_file(path).unwrap();
         let ret = if status.contains(git2::Status::WT_MODIFIED)
@@ -300,7 +300,7 @@ pub fn add_files(paths: &Vec<String>, update: Option<bool>) -> crate::Result<usi
             || status.contains(git2::Status::WT_DELETED)
         {
             let mut cnt = items_added.borrow_mut();
-            *cnt = *cnt + 1;
+            *cnt += 1;
             println!("Adding file: {}", path.display());
             println!("Status: {:?}", status);
             println!("File: {cnt:?}");

@@ -195,7 +195,7 @@ fn add_commit(
         // Generate the status message
         let statuses = r.statuses(Some(&mut StatusOptions::new()));
 
-        for s in statuses.unwrap().iter().map(|a| a) {
+        for s in statuses.unwrap().iter() {
             match s.status() {
                 Status::INDEX_NEW => {
                     status_msg.push_str(format!("A {}\n", s.path().unwrap()).as_str());
@@ -217,7 +217,7 @@ fn add_commit(
 
         let res = create_commit(r, commit_msg);
 
-        if let Ok(_) = res {
+        if res.is_ok() {
             println!("Commit was successful.");
         } else {
             return Err(Box::new(res.err().unwrap()));
@@ -234,7 +234,7 @@ fn traverse_dir(dir: Box<Path>, acc: &mut Vec<Box<Path>>) {
         let entry = entry.unwrap();
         let path = entry.path();
         if path.is_dir() {
-            if path.components().into_iter().any(|x| {
+            if path.components().any(|x| {
                 x.as_os_str() == "target"
                     || x.as_os_str() == "obj"
                     || x.as_os_str() == ".git"
@@ -341,8 +341,8 @@ fn fetch_ignores(ignores: &[String]) -> String {
     let url = "https://www.toptal.com/developers/gitignore/api/";
     let full_url = format!("{}{}", url, ignores.join(","));
     let res = reqwest::blocking::get(full_url).unwrap();
-    let body = res.text().unwrap();
-    body
+    
+    res.text().unwrap()
 }
 
 fn get_ignore_list(name: &Option<String>) -> Vec<String> {
@@ -352,12 +352,12 @@ fn get_ignore_list(name: &Option<String>) -> Vec<String> {
     // println!("{:#?}", res);
     let body = res.text().unwrap();
     if name.is_none() {
-        return body.lines().map(|x| x.to_string()).collect();
+        body.lines().map(|x| x.to_string()).collect()
     } else {
-        return body
+        body
             .lines()
             .filter(|x| x.contains(name.clone().unwrap().as_str()))
             .map(|x| x.to_string())
-            .collect();
+            .collect()
     }
 }

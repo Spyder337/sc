@@ -91,7 +91,7 @@ pub fn basic_search(mut options: SearchParams, open: &bool) -> crate::Result<()>
 }
 
 fn basic_search_open(url: Url) -> crate::Result<()> {
-    let res = open_url(&url.to_string());
+    let res = open_url(url.as_ref());
     res
 }
 
