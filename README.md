@@ -107,25 +107,24 @@ List any contributors, third-party libraries, or other resources you want to ack
 ### Dependencies
 
 ```toml
-# Time crates
+[dependencies]
 chrono = "0.4.39"
-# Command Line Application
-clap = { version = "4.5.23", features = ["derive", "suggestions"] }
-# Command Line Completion generation
+clap = { version = "4.5.23", features = ["color", "derive", "suggestions"] }
 clap_complete = "4.5.38"
+clap_complete_nushell = "4.5.4"
 derive = "1.0.0"
-# System Folders
-directories = "5.0.1"
-# Git interactions
-git2 = "0.19.0"
-# Initialize statics at runtime
+diesel = { version = "2.2.7", features = ["chrono", "sqlite"] }
+directories = "6.0.0"
+git2 = "0.20.0"
 lazy_static = "1.5.0"
+open = "5.3.1"
+rand = "0.9.0"
 reqwest = { version = "0.12.9", features = ["blocking"] }
-# Local database
-rusqlite = { version = "0.32.1", features = ["bundled"] }
-# Used for parsing some toml data 
+rusqlite = { version = "0.33.0", features = ["bundled"] }
 serde = { version = "1.0.216", features = ["derive"] }
+serde_json = "1.0.134"
 tokio = { version = "1.42.0", features = ["full"] }
+toml = "0.8.19"
 ```
 
 ## License
