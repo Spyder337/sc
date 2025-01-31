@@ -1,6 +1,6 @@
 #![deny(missing_docs)]
 //! # ShellCommander
-use std::{path::PathBuf, sync::Mutex};
+use std::{path::PathBuf, sync::Mutex, collections::HashMap};
 
 use clap::Parser;
 use commands::{ClapParser, CommandHandler};
@@ -11,6 +11,7 @@ mod commands;
 mod database;
 mod environment;
 mod web;
+mod colors;
 
 /// Wrapper type for std::result::Result.
 pub type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
@@ -27,6 +28,8 @@ lazy_static! {
     pub static ref SQL_FILE: PathBuf = APP_DIR.join("database.db");
     /// The environment settings.
     pub static ref ENV: Mutex<Environment> = Mutex::new(Environment::load());
+    /// Color codes for the terminal.
+    pub static ref COLORS: HashMap<&'static str, &'static str> = colors::colors_init();
 }
 
 fn main() -> Result<()> {

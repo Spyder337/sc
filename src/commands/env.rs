@@ -1,6 +1,6 @@
 use clap::Subcommand;
 
-use crate::{ENV, environment::Environment};
+use crate::{ENV, environment::Environment, colors::apply_color};
 
 use super::CommandHandler;
 /// A set of utilities for interacting with the environment.
@@ -133,8 +133,9 @@ fn set_env(
     google_search_api_key: &Option<String>,
     google_search_engine_id: &Option<String>,
 ) -> crate::Result<()> {
+    use crate::COLORS;
     if let Some(git_name) = git_name {
-        println!("Setting git name to: {}", git_name);
+        println!("Setting {}git name{} to: {}", COLORS["magenta"], COLORS["clear"], git_name);
         ENV.lock().unwrap().git_name = git_name.clone();
         println!("Git name set to: {}", ENV.lock().unwrap().git_name);
     }
@@ -186,40 +187,50 @@ fn get_env(
         add_all = true;
     }
     let mut env_str = String::with_capacity(256);
+    let env = ENV.lock().unwrap();
     if add_all || *git_name {
-        env_str.push_str(&format!("Git Name: {}\n", ENV.lock().unwrap().git_name));
+        env_str.push_str(&format!("{}: {}\n", 
+        apply_color("magenta", "Git User Name"), 
+        env.git_name));
     }
     if add_all || *git_email {
-        env_str.push_str(&format!("Git Email: {}\n", ENV.lock().unwrap().git_email));
+        env_str.push_str(&format!("{}: {}\n", 
+        apply_color("magenta", "Git Email"), 
+        env.git_email));
     }
     if add_all || *git_dir {
         env_str.push_str(&format!(
-            "Git Directory: {}\n",
-            ENV.lock().unwrap().git_dir.display()
+            "{}: {}\n", 
+            apply_color("magenta", "Git Directory"),
+            env.git_dir.display()
         ));
     }
     if add_all || *git_ignore_url {
         env_str.push_str(&format!(
-            "Git Ignore URL: {}\n",
-            ENV.lock().unwrap().git_ignore_url
+            "{}: {}\n", 
+            apply_color("magenta", "Git Ignore URL"),
+            env.git_ignore_url
         ));
     }
     if add_all || *conn_str {
         env_str.push_str(&format!(
-            "Connection String: {}\n",
-            ENV.lock().unwrap().conn_str
+            "{}: {}\n",
+            apply_color("magenta", "Connection String"),
+            env.conn_str
         ));
     }
     if add_all || *google_search_api_key {
         env_str.push_str(&format!(
-            "Google Search API Key: {}\n",
-            ENV.lock().unwrap().google_search_api_key
+            "{}: {}\n", 
+            apply_color("magenta", "Google Search API Key"),
+            env.google_search_api_key
         ));
     }
     if add_all || *google_search_engine_id {
         env_str.push_str(&format!(
-            "Google Search Engine ID: {}\n",
-            ENV.lock().unwrap().google_search_engine_id
+            "{}: {}\n", 
+            apply_color("magenta", "Google Search Engine ID"),
+            env.google_search_engine_id
         ));
     }
     print!("{}", env_str);
