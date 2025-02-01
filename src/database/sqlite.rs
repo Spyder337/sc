@@ -1,15 +1,19 @@
 #![allow(unused)]
 use diesel::prelude::*;
 
-use crate::database::model::Quote;
+use crate::database::model::{DailyQuote, Quote};
 
 use super::{
     DbResult,
-    model::{NewQuote, NewSearch, Search},
+    model::{NewDailyQuote, NewQuote, NewSearch, Search},
 };
 
+/// Create a connection to the sqlite database.
+///
+/// The connection string is stored in the `ENV` global variable.
 fn establish_connection() -> DbResult<SqliteConnection> {
-    let conn = SqliteConnection::establish(&crate::ENV.lock().unwrap().conn_str)?;
+    let env = crate::ENV.lock().unwrap();
+    let conn = SqliteConnection::establish(&env.conn_str)?;
     Ok(conn)
 }
 
@@ -50,6 +54,21 @@ pub fn get_quote(id: i32) -> DbResult<Quote> {
 
     match result {
         Ok(q) => Ok(q),
+        Err(e) => Err(e.to_string().into()),
+    }
+}
+
+/// Get the most recent daily quote.
+pub fn get_daily_quote() -> DbResult<Quote> {
+    use crate::database::schema::daily_quotes::dsl::*;
+
+    let conn = &mut establish_connection()?;
+    let result = daily_quotes
+        .order(time_stamp.desc())
+        .first::<DailyQuote>(conn);
+
+    match result {
+        Ok(q) => get_quote(q.quote_id),
         Err(e) => Err(e.to_string().into()),
     }
 }
@@ -171,6 +190,21 @@ pub fn insert_quote(new_quote: NewQuote) -> DbResult<()> {
 
     let conn = &mut establish_connection()?;
     let result = diesel::insert_into(quotes).values(&new_quote).execute(conn);
+
+    match result {
+        Ok(_) => Ok(()),
+        Err(e) => Err(e.to_string().into()),
+    }
+}
+
+/// Insert a new daily quote.
+pub fn insert_daily_quote(new_daily_quote: NewDailyQuote) -> DbResult<()> {
+    use crate::database::schema::daily_quotes::dsl::*;
+
+    let conn = &mut establish_connection()?;
+    let result = diesel::insert_into(daily_quotes)
+        .values(&new_daily_quote)
+        .execute(conn);
 
     match result {
         Ok(_) => Ok(()),

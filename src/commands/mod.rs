@@ -1,6 +1,7 @@
 mod env;
 mod git;
 mod web;
+mod quotes;
 
 use clap::{Parser, Subcommand};
 
