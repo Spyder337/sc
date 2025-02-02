@@ -162,7 +162,7 @@ fn add_commit(
         let main_change: String;
         let time = time_now();
         let time_str = time.format("%Y-%m-%d %H:%M:%S");
-        let has_changes = changes.len() > 1;
+        let has_changes = changes.len() > 0;
 
         //  If the changes are not provided then we generate a timestamp for the
         // first line of the commit message.
@@ -341,7 +341,7 @@ fn fetch_ignores(ignores: &[String]) -> String {
     let url = "https://www.toptal.com/developers/gitignore/api/";
     let full_url = format!("{}{}", url, ignores.join(","));
     let res = reqwest::blocking::get(full_url).unwrap();
-    
+
     res.text().unwrap()
 }
 
@@ -354,8 +354,7 @@ fn get_ignore_list(name: &Option<String>) -> Vec<String> {
     if name.is_none() {
         body.lines().map(|x| x.to_string()).collect()
     } else {
-        body
-            .lines()
+        body.lines()
             .filter(|x| x.contains(name.clone().unwrap().as_str()))
             .map(|x| x.to_string())
             .collect()
