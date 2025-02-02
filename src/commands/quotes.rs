@@ -57,7 +57,7 @@ impl CommandHandler for QuoteCommands {
                 let daily = get_daily();
                 match daily {
                     Ok(q) => {
-                        println!("Daily Quote: {}", q.quote);
+                        println!("{}", q.to_string());
                         Ok(())
                     }
                     Err(e) => Err(e.to_string().into()),
@@ -70,7 +70,7 @@ impl CommandHandler for QuoteCommands {
                     match quotes {
                         Ok(q) => {
                             for quote in q {
-                                println!("{} - {}", quote.id, quote.quote);
+                                println!("{}", quote.to_string());
                             }
                             Ok(())
                         }
@@ -80,7 +80,7 @@ impl CommandHandler for QuoteCommands {
                     let quote = get_quote_by_id(id.unwrap());
                     match quote {
                         Ok(q) => {
-                            println!("{} - {}", q.id, q.quote);
+                            println!("{}", q.to_string());
                             Ok(())
                         }
                         Err(e) => Err(e.to_string().into()),
@@ -92,7 +92,7 @@ impl CommandHandler for QuoteCommands {
 
                 match quote_res {
                     Ok(q) => {
-                        println!("{} - {}", q.id, q.quote);
+                        println!("{}", q.to_string());
                         Ok(())
                     }
                     Err(e) => {

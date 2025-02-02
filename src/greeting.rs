@@ -1,3 +1,5 @@
+use crate::quote::get_daily;
+
 pub fn welcome_msg() -> String {
     use crate::{ENV, colors::apply_color};
 
@@ -8,9 +10,17 @@ pub fn welcome_msg() -> String {
         "Welcome {}!\n",
         apply_color("magenta", env.git_name.as_str()),
     );
-    msg.push_str(format!(
-        "Today is {}.\n",
-        apply_color("green", date.format("%A, %B %d, %Y").to_string().as_str()),
-    ).as_str());
+    msg.push_str(
+        format!(
+            "Today is {}.\n\n",
+            apply_color("green", date.format("%A, %B %d, %Y").to_string().as_str()),
+        )
+        .as_str(),
+    );
+
+    // if let Ok(daily) = get_daily() {
+    //     msg.push_str(format!("{}", daily.to_string()).as_str());
+    // }
+
     msg
 }

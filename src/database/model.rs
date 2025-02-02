@@ -34,6 +34,12 @@ pub struct Quote {
     pub author: String,
 }
 
+impl ToString for Quote {
+    fn to_string(&self) -> String {
+        format!("{}\n\t- {}", self.quote, self.author)
+    }
+}
+
 /// A new quote.
 ///
 /// This struct is used to insert a new quote into the database.
