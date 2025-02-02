@@ -11,11 +11,11 @@ use git2::{
     SubmoduleIgnore,
 };
 
-///
-///
-/// Code Sourced from https://github.com/rust-lang/git2-rs/blob/master/examples/status.rs.
-///
-///
+//
+//
+//  Code Sourced from https://github.com/rust-lang/git2-rs/blob/master/examples/status.rs.
+//
+//
 #[derive(Eq, PartialEq)]
 enum Format {
     Long,
@@ -269,17 +269,15 @@ pub fn clone_repo(url: &str, dir: &Option<String>) -> crate::Result<()> {
 
     match res {
         Ok(_repo) => Ok(()),
-        Err(e) => {
-            Err(e.into())
-        }
+        Err(e) => Err(e.into()),
     }
 }
 
-///
-///
-/// End of Sourced code https://github.com/rust-lang/git2-rs/blob/master/examples/status.rs
-///
-///
+//
+//
+//  End of Sourced code https://github.com/rust-lang/git2-rs/blob/master/examples/status.rs
+//
+//
 
 /// Add files to the git repository.
 ///
@@ -318,18 +316,16 @@ pub fn add_files(paths: &Vec<String>, update: Option<bool>) -> crate::Result<usi
     };
 
     //  Result of editing the index.
-    let res: Result<(), Error>;
 
-    if is_update {
-        res = index.update_all(paths, cb);
+    let res: Result<(), Error> = if is_update {
+        index.update_all(paths, cb)
     } else {
-        res = index.add_all(paths, git2::IndexAddOption::DEFAULT, cb);
-    }
+        index.add_all(paths, git2::IndexAddOption::DEFAULT, cb)
+    };
 
     if res.is_err() {
         return Err(res.err().unwrap().into());
     }
-
     index.write().unwrap();
 
     Ok(*items_added.borrow())

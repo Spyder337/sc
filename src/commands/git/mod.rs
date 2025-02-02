@@ -120,7 +120,7 @@ fn new_repo(name: &str, ignores: Option<Vec<String>>) -> crate::Result<()> {
 fn add_commit(
     paths: &Option<Vec<String>>,
     remove: &Option<bool>,
-    changes: &Vec<String>,
+    changes: &[String],
 ) -> crate::Result<()> {
     let repo = Repository::open(".");
     if repo.is_err() {
@@ -146,7 +146,7 @@ fn add_commit(
         //  Equivalent to git add --update
         let res = commands::git::core::add_files(&path_specs, None);
 
-        if let Ok(_) = res {
+        if res.is_ok() {
             println!("Files staged successfully.");
         } else {
             return Err(res.err().unwrap());
@@ -162,7 +162,7 @@ fn add_commit(
         let main_change: String;
         let time = time_now();
         let time_str = time.format("%Y-%m-%d %H:%M:%S");
-        let has_changes = changes.len() > 0;
+        let has_changes = !changes.is_empty();
 
         //  If the changes are not provided then we generate a timestamp for the
         // first line of the commit message.
@@ -170,12 +170,9 @@ fn add_commit(
             main_change = format!("Updated: {}", time_str).to_string();
         } else {
             main_change = changes.first().unwrap().to_string();
-            let change_list = changes.clone();
-            for i in 1..change_list.len() {
-                if change_list[i].is_empty() {
-                    continue;
-                }
-                change_msg.push_str(&format!("- {}\n", change_list[i]));
+            let change_list = changes.to_owned();
+            for item in change_list.iter().skip(1) {
+                change_msg.push_str(&format!("- {}\n", item));
             }
         }
 

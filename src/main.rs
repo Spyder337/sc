@@ -1,6 +1,10 @@
 #![deny(missing_docs)]
 //! # ShellCommander
-use std::{collections::HashMap, path::PathBuf, sync::Mutex};
+use std::{
+    collections::HashMap,
+    path::{Path, PathBuf},
+    sync::Mutex,
+};
 
 use clap::Parser;
 use commands::{ClapParser, CommandHandler};
@@ -35,7 +39,7 @@ lazy_static! {
 }
 
 /// Replace backslashes with forward slashes in a path.
-pub fn sanitize_path(path_buf: &PathBuf) -> PathBuf {
+pub fn sanitize_path(path_buf: &Path) -> PathBuf {
     path_buf.to_string_lossy().replace("\\", "/").into()
 }
 
