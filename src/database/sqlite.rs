@@ -1,7 +1,11 @@
 #![allow(unused)]
-use diesel::prelude::*;
+use chrono::{DateTime, Local, NaiveDateTime};
+use diesel::{dsl::now, prelude::*};
 
-use crate::database::model::{DailyQuote, Quote};
+use crate::database::{
+    model::{DailyQuote, Quote},
+    schema::quotes::quote,
+};
 
 use super::{
     DbResult,
@@ -68,8 +72,33 @@ pub fn get_daily_quote() -> DbResult<Quote> {
         .first::<DailyQuote>(conn);
 
     match result {
-        Ok(q) => get_quote(q.quote_id),
-        Err(e) => Err(e.to_string().into()),
+        //  If there is a valid daily quote, check if it is from today.
+        //  If it is not from today, get a new random quote and insert it as the daily quote.
+        Ok(q) => {
+            let current_date = chrono::Local::now().date_naive();
+            if q.time_stamp.date() != current_date {
+                let rand_quote = get_quote_random()?;
+                let new_daily_quote = NewDailyQuote {
+                    quote_id: rand_quote.id,
+                    time_stamp: Local::now().naive_local(),
+                };
+                insert_daily_quote(new_daily_quote)?;
+                Ok(rand_quote)
+            } else {
+                let new_quote = get_quote(q.quote_id)?;
+                Ok(new_quote)
+            }
+        }
+        //  If there is no daily quote, get a new random quote and insert it as the daily quote.
+        Err(e) => {
+            let rand_quote = get_quote_random()?;
+            let new_daily_quote = NewDailyQuote {
+                quote_id: rand_quote.id,
+                time_stamp: Local::now().naive_local(),
+            };
+            insert_daily_quote(new_daily_quote)?;
+            Ok(rand_quote)
+        }
     }
 }
 
@@ -189,7 +218,35 @@ pub fn insert_quote(new_quote: NewQuote) -> DbResult<()> {
     use crate::database::schema::quotes::dsl::*;
 
     let conn = &mut establish_connection()?;
-    let result = diesel::insert_into(quotes).values(&new_quote).execute(conn);
+
+    let mut new_id = 0;
+
+    // Get the last quote ID.
+    let quote_res = quotes.select(Quote::as_select()).load(conn);
+
+    // If there are quotes in the database, get the last quote ID.
+    if quote_res.is_ok() {
+        let quotes_vec = quote_res.unwrap();
+
+        if !quotes_vec.is_empty() {
+            let last_quote = quotes_vec.iter().last();
+            // println!("Last quote: {:?}", last_quote);
+            if last_quote.is_some() {
+                let last_id = last_quote.unwrap().id;
+                new_id = last_id + 1;
+            }
+        }
+    }
+
+    let final_quote = Quote {
+        id: new_id,
+        quote: new_quote.quote.clone(),
+        author: new_quote.author.clone(),
+    };
+
+    let result = diesel::insert_into(quotes)
+        .values(&final_quote)
+        .execute(conn);
 
     match result {
         Ok(_) => Ok(()),
@@ -202,8 +259,31 @@ pub fn insert_daily_quote(new_daily_quote: NewDailyQuote) -> DbResult<()> {
     use crate::database::schema::daily_quotes::dsl::*;
 
     let conn = &mut establish_connection()?;
+
+    let mut new_id = 0;
+
+    let daily_res = daily_quotes.select(DailyQuote::as_select()).load(conn);
+
+    if daily_res.is_ok() {
+        let daily_vec = daily_res.unwrap();
+
+        if !daily_vec.is_empty() {
+            let last_daily = daily_vec.iter().last();
+            if last_daily.is_some() {
+                let last_id = last_daily.unwrap().id;
+                new_id = last_id + 1;
+            }
+        }
+    }
+
+    let final_daily_quote = DailyQuote {
+        id: new_id,
+        quote_id: new_daily_quote.quote_id,
+        time_stamp: new_daily_quote.time_stamp,
+    };
+
     let result = diesel::insert_into(daily_quotes)
-        .values(&new_daily_quote)
+        .values(&final_daily_quote)
         .execute(conn);
 
     match result {

@@ -1,5 +1,7 @@
 #![allow(dead_code)]
 
+use std::path::PathBuf;
+
 pub mod model;
 mod schema;
 pub mod sqlite;
@@ -12,9 +14,10 @@ pub fn generate_dotenv() -> DbResult<()> {
     use std::fs::File;
     use std::io::Write;
     let env = ENV.lock().unwrap();
+    let path = PathBuf::from(env.conn_str.as_str());
 
     let mut file = File::create(".env")?;
-    writeln!(file, "DATABASE_URL={}", env.conn_str)?;
+    write!(file, "DATABASE_URL={}", path.to_str().unwrap())?;
 
     Ok(())
 }

@@ -26,7 +26,7 @@ pub struct NewSearch {
 }
 
 /// A quote.
-#[derive(Debug, Queryable, AsChangeset, Selectable, Clone)]
+#[derive(Debug, Queryable, AsChangeset, Selectable, Clone, Insertable)]
 #[diesel(table_name = quotes)]
 pub struct Quote {
     pub id: i32,
@@ -45,7 +45,7 @@ pub struct NewQuote {
 }
 
 /// A daily quote.
-#[derive(Debug, Queryable, AsChangeset, Selectable, Clone)]
+#[derive(Debug, Queryable, AsChangeset, Selectable, Clone, Insertable)]
 #[diesel(table_name = daily_quotes)]
 pub struct DailyQuote {
     pub id: i32,
@@ -60,4 +60,5 @@ pub struct DailyQuote {
 #[diesel(table_name = daily_quotes)]
 pub struct NewDailyQuote {
     pub quote_id: i32,
+    pub time_stamp: chrono::NaiveDateTime,
 }
