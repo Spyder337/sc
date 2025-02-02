@@ -9,6 +9,7 @@ use super::CommandHandler;
 
 //  TODO: Implement the commands for calling the functions.
 
+/// Add and get quotes from the database.
 #[derive(Debug, Subcommand)]
 pub(crate) enum QuoteCommands {
     /// Add a new quote to the database.
