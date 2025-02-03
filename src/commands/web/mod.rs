@@ -135,7 +135,7 @@ fn history_list(to: Option<String>, from: Option<String>) -> crate::Result<()> {
         return Err(res.err().unwrap());
     }
     for search in res.unwrap() {
-        println!("{}", search.to_string());
+        println!("{}", search);
     }
     Ok(())
 }

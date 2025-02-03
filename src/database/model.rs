@@ -2,8 +2,6 @@ use crate::database::schema::{daily_quotes, quotes, searches};
 use chrono::NaiveDateTime;
 use diesel::prelude::*;
 
-use super::schema::searches::query;
-
 /// A google search history item.
 #[derive(Debug, Queryable, AsChangeset, Selectable, Clone, Insertable)]
 #[diesel(table_name = searches)]
@@ -16,25 +14,24 @@ pub struct SearchEntry {
     pub time_stamp: NaiveDateTime,
 }
 
-impl ToString for SearchEntry {
-    fn to_string(&self) -> String {
-        let mut s = format!("Query: {}\n", self.query);
+impl std::fmt::Display for SearchEntry {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let _ = f.write_fmt(format_args!("Query: {}\n", self.query));
         if let Some(website) = &self.website {
-            s.push_str(&format!("Website: {}\n", website));
+            let _ = f.write_fmt(format_args!("Website: {}\n", website));
         }
-        if let Some(allintext) = &self.allintext {
-            s.push_str(&format!("All in text: {}\n", allintext));
+        if let Some(all_text) = &self.allintext {
+            let _ = f.write_fmt(format_args!("All in text: {}\n", all_text));
         }
-        s.push_str(&format!("Time: {}\n", self.time_stamp));
-        s.push_str(&format!(
+        let _ = f.write_fmt(format_args!("Time: {}\n", self.time_stamp));
+        f.write_fmt(format_args!(
             "Query String: {}\n",
             crate::commands::web::core::query_string_builder(
                 &self.query,
                 &self.website,
                 &self.allintext,
             )
-        ));
-        s
+        ))
     }
 }
 
@@ -47,9 +44,9 @@ pub struct Quote {
     pub author: String,
 }
 
-impl ToString for Quote {
-    fn to_string(&self) -> String {
-        format!("{}\n\t- {}", self.quote, self.author)
+impl std::fmt::Display for Quote {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(format!("{}\n\t- {}", self.quote, self.author).as_str())
     }
 }
 

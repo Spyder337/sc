@@ -47,7 +47,7 @@ pub enum Shells {
     Zsh,
 }
 
-pub(crate) fn completion_generate(shell: &Shells, out_path: &Option<String>) -> () {
+pub(crate) fn completion_generate(shell: &Shells, out_path: &Option<String>) {
     let mut buffer: Box<dyn Write>;
 
     if let Some(path) = out_path {
