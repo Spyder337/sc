@@ -1,3 +1,4 @@
+mod completions;
 mod env;
 mod git;
 mod quotes;
@@ -5,6 +6,7 @@ mod web;
 
 use clap::{Parser, Subcommand};
 
+use completions::CompletionCommands;
 use env::EnvCommands;
 use git::GitCommands;
 use quotes::QuoteCommands;
@@ -28,7 +30,10 @@ pub enum Commands {
         #[command(subcommand)]
         command: QuoteCommands,
     },
-    Completions,
+    Completions {
+        #[command(subcommand)]
+        command: CompletionCommands,
+    },
     /// Message of the day.
     Welcome,
 }
@@ -53,10 +58,7 @@ impl CommandHandler for ClapParser {
             Commands::Git { command } => command.handle(),
             Commands::Env { command } => command.handle(),
             Commands::Quote { command } => command.handle(),
-            Commands::Completions => {
-                println!("Completions command not implemented.");
-                Ok(())
-            }
+            Commands::Completions { command } => command.handle(),
             Commands::Welcome => {
                 print!("{}", crate::greeting::welcome_msg());
                 Ok(())
