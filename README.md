@@ -2,16 +2,18 @@
 
 ## Project Description
 
-[ShellCommander][repo-cmd] is a collection of Rust ports of scripts that I've wrote/found online. The goal is to port all of my scripts to create commands that can be run from any shell. Not just nushell or powershell.
+[ShellCommander][repo-cmd] is a collection of Rust ports of scripts that I've wrote or found online. The goal is to port all of my scripts to create commands that can be run from any shell. Not just nushell or powershell.
 
 Shell scripts can be found [here][repo-shell].
 
 ## Installation
 
+The project requires [git][git-site] to be installed on the system.
+
 To install the Rust crate, run the following command:
 
 ```sh
-cargo install cmd
+cargo install --path "."
 ```
 
 To develop the crate make sure that the rust nightly toolchain is installed.
@@ -26,6 +28,14 @@ Create a `.env` file in the cargo directory that looks like
 DATABASE_URL=path_to_db
 ```
 
+#### Alternatively
+
+You can also run the following command after installing the crate.
+
+```sh
+ShellCommander env generate-dot-env
+```
+
 #### Database Generation
 
 ```sh
@@ -36,68 +46,10 @@ This will generate the sql database file.
 
 ## Usage
 
-### Git Commands
+In order to see the commands provided execute the following command:
 
 ```sh
-A set of command line utilities
-
-Usage: cmd <COMMAND>
-
-Commands:
-  web    A set of web utilities
-  git    A set of git utilities
-  env    A set of utilities for interacting with the environment
-  quote
-  help   Print this message or the help of the given subcommand(s)
-
-Options:
-  -h, --help  Print help
-```
-
-### Git
-
-```sh
-Usage: cmd git <COMMAND>
-
-Commands:
-  new         Initialize a new git repository
-  clone       Clone a repository
-  list        List cloned repositories in the `git_dir`
-  add-commit  Stage files and commit them
-  ignore      A set of .gitignore utilities
-  help        Print this message or the help of the given subcommand(s)
-
-Options:
-  -h, --help  Print help
-```
-
-### Web
-
-```sh
-A set of web utilities
-
-Usage: cmd web <COMMAND>
-
-Commands:
-  search   Search google for a query
-  history  View search history
-  help     Print this message or the help of the given subcommand(s)
-
-Options:
-  -h, --help  Print help
-```
-
-```sh
-Usage: cmd web search [OPTIONS] <QUERY>
-
-Arguments:
-  <QUERY>  Search query
-
-Options:
-      --site <SITE>            Site to restrict search to
-      --allintext <ALLINTEXT>  Search for text in the page
-      --json <JSON>            Return results in JSON format [possible values: true, false]
-  -h, --help                   Print help
+ShellCommander help
 ```
 
 ## Credits
@@ -109,21 +61,24 @@ Git integrations use some code from [Git2][git2-example] examples.
 ```toml
 [dependencies]
 chrono = "0.4.39"
-clap = { version = "4.5.23", features = ["color", "derive", "suggestions"] }
-clap_complete = "4.5.38"
+clap = { version = "4.5.27", features = ["color", "derive", "suggestions"] }
+clap_complete = "4.5.44"
 clap_complete_nushell = "4.5.4"
 derive = "1.0.0"
-diesel = { version = "2.2.7", features = ["chrono", "sqlite"] }
 directories = "6.0.0"
 git2 = "0.20.0"
 lazy_static = "1.5.0"
 open = "5.3.1"
 rand = "0.9.0"
-reqwest = { version = "0.12.9", features = ["blocking"] }
-rusqlite = { version = "0.33.0", features = ["bundled"] }
-serde = { version = "1.0.216", features = ["derive"] }
-serde_json = "1.0.134"
-tokio = { version = "1.42.0", features = ["full"] }
+reqwest = { version = "0.12.12", features = ["blocking"] }
+libsqlite3-sys = { version = "*", features = ["bundled"] }
+diesel = { version = "2.2.7", features = [
+  "chrono",
+  "sqlite",
+], default-features = false }
+serde = { version = "1.0.217", features = ["derive"] }
+serde_json = "1.0.138"
+tokio = { version = "1.43.0", features = ["full"] }
 toml = "0.8.19"
 ```
 
@@ -135,5 +90,6 @@ This project is licensed under the [GNU General Public License][license] v3.0. S
 [repo-shell]: https://github.com/Spyder337/nu-config
 [repo-diesel]: https://diesel.rs
 [git2-example]: https://github.com/rust-lang/git2-rs/blob/master/examples
+[git-site]: https://git-scm.com
 [license]: https://www.gnu.org/licenses/gpl-3.0.en.html
 [license-file]: LICENSE.md
