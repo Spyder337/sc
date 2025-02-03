@@ -202,7 +202,7 @@ pub fn get_search_range(from: String, to: String) -> DbResult<Vec<SearchEntry>> 
 pub fn insert_search(new_search: SearchEntry) -> DbResult<()> {
     use crate::database::schema::searches::dsl::*;
 
-    println!("Inserting search: {:?}", new_search);
+    // println!("Inserting search: {:?}", new_search);
     let conn = &mut establish_connection()?;
 
     let search_res = searches.select(SearchEntry::as_select()).load(conn);
@@ -231,7 +231,7 @@ pub fn insert_search(new_search: SearchEntry) -> DbResult<()> {
         time_stamp: chrono::Local::now().naive_local(),
     };
 
-    println!("Inserting search: {:?}", search);
+    // println!("Inserting search: {:?}", search);
 
     let result = diesel::insert_into(searches).values(&search).execute(conn);
 

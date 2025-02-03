@@ -84,16 +84,17 @@ fn open_url(url: &str) -> crate::Result<()> {
 pub fn basic_search(mut options: SearchParams, json: &bool) -> crate::Result<()> {
     options.add_api_data();
     let url: Url = options.into();
-    println!("Url: {}", url);
+    // println!("Url: {}", url);
     if *json {
+        println!("Fetching web page: {}", url);
         basic_search_json(url)
     } else {
+        println!("Opening URL: {}", url);
         basic_search_open(url)
     }
 }
 
 fn basic_search_open(url: Url) -> crate::Result<()> {
-    println!("Opening URL: {}", url);
     let res = open_url(url.as_ref());
     res
 }

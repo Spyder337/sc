@@ -2,6 +2,8 @@ use crate::database::schema::{daily_quotes, quotes, searches};
 use chrono::NaiveDateTime;
 use diesel::prelude::*;
 
+use super::schema::searches::query;
+
 /// A google search history item.
 #[derive(Debug, Queryable, AsChangeset, Selectable, Clone, Insertable)]
 #[diesel(table_name = searches)]
@@ -12,6 +14,28 @@ pub struct SearchEntry {
     pub allintext: Option<String>,
     #[diesel(sql_type = Timestamp)]
     pub time_stamp: NaiveDateTime,
+}
+
+impl ToString for SearchEntry {
+    fn to_string(&self) -> String {
+        let mut s = format!("Query: {}\n", self.query);
+        if let Some(website) = &self.website {
+            s.push_str(&format!("Website: {}\n", website));
+        }
+        if let Some(allintext) = &self.allintext {
+            s.push_str(&format!("All in text: {}\n", allintext));
+        }
+        s.push_str(&format!("Time: {}\n", self.time_stamp));
+        s.push_str(&format!(
+            "Query String: {}\n",
+            crate::commands::web::core::query_string_builder(
+                &self.query,
+                &self.website,
+                &self.allintext,
+            )
+        ));
+        s
+    }
 }
 
 /// A quote.

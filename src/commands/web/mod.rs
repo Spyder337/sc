@@ -1,10 +1,13 @@
-mod core;
+pub mod core;
 
 use clap::Subcommand;
 
 use core::{SearchParams, basic_search, query_string_builder};
 
-use crate::database::{self};
+use crate::{
+    commands::time_now,
+    database::{self, model::SearchEntry},
+};
 
 use super::CommandHandler;
 
@@ -53,19 +56,21 @@ impl CommandHandler for WebCommands {
                     return Err(search_res.err().unwrap());
                 }
 
-                // let new_search = NewSearch {
-                //     query: query.clone(),
-                //     website: site.clone(),
-                //     allintext: allintext.clone(),
-                // };
+                let new_search = SearchEntry {
+                    id: 0,
+                    query: query.clone(),
+                    website: site.clone(),
+                    allintext: allintext.clone(),
+                    time_stamp: time_now(),
+                };
 
                 // println!("Search Object: {:?}", new_search);
 
-                // let res = database::sqlite::insert_search(new_search);
+                let res = database::sqlite::insert_search(new_search);
 
-                // if res.is_err() {
-                //     return Err(res.err().unwrap());
-                // }
+                if res.is_err() {
+                    return Err(res.err().unwrap());
+                }
                 Ok(())
             }
             WebCommands::History { command } => command.handle(),
@@ -130,7 +135,7 @@ fn history_list(to: Option<String>, from: Option<String>) -> crate::Result<()> {
         return Err(res.err().unwrap());
     }
     for search in res.unwrap() {
-        println!("{:?}", search);
+        println!("{}", search.to_string());
     }
     Ok(())
 }
