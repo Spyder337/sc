@@ -1,3 +1,8 @@
+use std::{
+    fs::File,
+    io::{BufWriter, Write},
+};
+
 use clap::{CommandFactory, Subcommand};
 use clap_complete::{
     aot::{Bash, Elvish, Fish, PowerShell, Zsh},
@@ -13,14 +18,18 @@ use super::CommandHandler;
 #[derive(Debug, Subcommand)]
 pub enum CompletionCommands {
     /// Generate completions for a shell.
-    Generate { shell: Shells },
+    Generate {
+        shell: Shells,
+        #[arg(short, long)]
+        out_path: Option<String>,
+    },
 }
 
 impl CommandHandler for CompletionCommands {
     fn handle(&self) -> crate::Result<()> {
         match self {
-            CompletionCommands::Generate { shell } => {
-                completion_generate(shell);
+            CompletionCommands::Generate { shell, out_path } => {
+                completion_generate(shell, out_path);
                 Ok(())
             }
         }
@@ -38,43 +47,51 @@ pub enum Shells {
     Zsh,
 }
 
-pub(crate) fn completion_generate(shell: &Shells) -> () {
+pub(crate) fn completion_generate(shell: &Shells, out_path: &Option<String>) -> () {
+    let mut buffer: Box<dyn Write>;
+
+    if let Some(path) = out_path {
+        buffer = Box::new(BufWriter::new(File::create(path).unwrap()));
+    } else {
+        buffer = Box::new(std::io::stdout());
+    }
+
     match shell {
         Shells::Nushell => generate(
             Nushell,
             &mut ClapParser::command(),
             "ShellCommander",
-            &mut std::io::stdout(),
+            &mut buffer,
         ),
         Shells::Bash => generate(
             Bash,
             &mut ClapParser::command(),
             "ShellCommander",
-            &mut std::io::stdout(),
+            &mut buffer,
         ),
         Shells::Elvish => generate(
             Elvish,
             &mut ClapParser::command(),
             "ShellCommander",
-            &mut std::io::stdout(),
+            &mut buffer,
         ),
         Shells::Fish => generate(
             Fish,
             &mut ClapParser::command(),
             "ShellCommander",
-            &mut std::io::stdout(),
+            &mut buffer,
         ),
         Shells::PowerShell => generate(
             PowerShell,
             &mut ClapParser::command(),
             "ShellCommander",
-            &mut std::io::stdout(),
+            &mut buffer,
         ),
         Shells::Zsh => generate(
             Zsh,
             &mut ClapParser::command(),
             "ShellCommander",
-            &mut std::io::stdout(),
+            &mut buffer,
         ),
     }
 }
