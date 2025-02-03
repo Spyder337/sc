@@ -1,5 +1,3 @@
-use crate::quote::get_daily;
-
 pub fn welcome_msg() -> String {
     use crate::{ENV, colors::apply_color};
 
@@ -17,10 +15,6 @@ pub fn welcome_msg() -> String {
         )
         .as_str(),
     );
-
-    // if let Ok(daily) = get_daily() {
-    //     msg.push_str(format!("{}", daily.to_string()).as_str());
-    // }
 
     msg
 }
