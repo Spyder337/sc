@@ -9,7 +9,7 @@ use crate::database::{
 
 use super::{
     DbResult,
-    model::{NewDailyQuote, NewQuote, NewSearch, Search},
+    model::{NewDailyQuote, NewQuote, SearchEntry},
 };
 
 /// Create a connection to the sqlite database.
@@ -119,11 +119,11 @@ pub fn get_quote_random() -> DbResult<Quote> {
 }
 
 /// Get a search by its ID.
-pub fn get_search(id: i32) -> DbResult<Search> {
+pub fn get_search(id: i32) -> DbResult<SearchEntry> {
     use crate::database::schema::searches::dsl::*;
 
     let conn = &mut establish_connection()?;
-    let result = searches.find(id).first::<Search>(conn);
+    let result = searches.find(id).first::<SearchEntry>(conn);
 
     match result {
         Ok(q) => Ok(q),
@@ -132,11 +132,11 @@ pub fn get_search(id: i32) -> DbResult<Search> {
 }
 
 /// Get a search by its query.
-pub fn get_search_by_query(query: String) -> DbResult<Search> {
+pub fn get_search_by_query(query: String) -> DbResult<SearchEntry> {
     use crate::database::schema::searches::dsl::*;
 
     let conn = &mut establish_connection()?;
-    let result = searches.filter(query.eq(query)).first::<Search>(conn);
+    let result = searches.filter(query.eq(query)).first::<SearchEntry>(conn);
 
     match result {
         Ok(q) => Ok(q),
@@ -149,7 +149,7 @@ pub fn get_search_by(
     query: String,
     site: Option<String>,
     allintext: Option<String>,
-) -> DbResult<Search> {
+) -> DbResult<SearchEntry> {
     use crate::database::schema::searches::dsl::*;
 
     let conn = &mut establish_connection()?;
@@ -160,7 +160,7 @@ pub fn get_search_by(
                 .and(website.eq(site))
                 .and(allintext.eq(allintext)),
         )
-        .first::<Search>(conn);
+        .first::<SearchEntry>(conn);
 
     match result {
         Ok(q) => Ok(q),
@@ -173,11 +173,11 @@ pub fn get_search_by(
 /// If `from` is empty, all items before `to` are returned.
 /// If `to` is empty, all items after `from` are returned.
 /// If both are empty, all items are returned.
-pub fn get_search_range(from: String, to: String) -> DbResult<Vec<Search>> {
+pub fn get_search_range(from: String, to: String) -> DbResult<Vec<SearchEntry>> {
     use crate::database::schema::searches::dsl::*;
 
     let conn = &mut establish_connection()?;
-    let result: Result<Vec<Search>, diesel::result::Error>;
+    let result: Result<Vec<SearchEntry>, diesel::result::Error>;
 
     if from.is_empty() && to.is_empty() {
         result = searches.load(conn);
@@ -199,13 +199,41 @@ pub fn get_search_range(from: String, to: String) -> DbResult<Vec<Search>> {
 }
 
 /// Insert a new search history item.
-pub fn insert_search(new_search: NewSearch) -> DbResult<()> {
+pub fn insert_search(new_search: SearchEntry) -> DbResult<()> {
     use crate::database::schema::searches::dsl::*;
 
+    println!("Inserting search: {:?}", new_search);
     let conn = &mut establish_connection()?;
-    let result = diesel::insert_into(searches)
-        .values(&new_search)
-        .execute(conn);
+
+    let search_res = searches.select(SearchEntry::as_select()).load(conn);
+
+    let mut new_id = 0;
+
+    if search_res.is_ok() {
+        let search_vec = search_res.unwrap();
+
+        if !search_vec.is_empty() {
+            let last_search = search_vec.iter().last();
+            if last_search.is_some() {
+                let last_id = last_search.unwrap().id;
+                new_id = last_id + 1;
+            }
+        }
+    } else {
+        return Err("Failed to get search history".into());
+    }
+
+    let search = SearchEntry {
+        id: new_id,
+        query: new_search.query.clone(),
+        website: new_search.website.clone(),
+        allintext: new_search.allintext.clone(),
+        time_stamp: chrono::Local::now().naive_local(),
+    };
+
+    println!("Inserting search: {:?}", search);
+
+    let result = diesel::insert_into(searches).values(&search).execute(conn);
 
     match result {
         Ok(_) => Ok(()),

@@ -1,7 +1,7 @@
 use clap::Subcommand;
 
 use crate::{
-    database::{self, model::NewSearch},
+    database::{self},
     web::{SearchParams, basic_search, query_string_builder},
 };
 
@@ -39,20 +39,32 @@ impl CommandHandler for WebCommands {
                 allintext,
                 json,
             } => {
+                // println!("Searching for: {}", query);
                 let query_string = query_string_builder(query, site, allintext);
                 let search = SearchParams::new(&query_string);
-                let new_search = NewSearch {
-                    query: query.clone(),
-                    website: site.clone(),
-                    allintext: allintext.clone(),
-                };
-                let res = database::sqlite::insert_search(new_search);
 
-                if res.is_err() {
-                    return Err(res.err().unwrap());
+                // println!("Search Params: {:?}", search);
+
+                let search_res = basic_search(search, &(json.unwrap_or(false)));
+
+                if search_res.is_err() {
+                    return Err(search_res.err().unwrap());
                 }
 
-                basic_search(search, &(!json.unwrap_or(false)))
+                // let new_search = NewSearch {
+                //     query: query.clone(),
+                //     website: site.clone(),
+                //     allintext: allintext.clone(),
+                // };
+
+                // println!("Search Object: {:?}", new_search);
+
+                // let res = database::sqlite::insert_search(new_search);
+
+                // if res.is_err() {
+                //     return Err(res.err().unwrap());
+                // }
+                Ok(())
             }
             WebCommands::History { command } => command.handle(),
         }

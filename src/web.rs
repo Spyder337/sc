@@ -5,6 +5,7 @@ use reqwest::Url;
 use crate::ENV;
 
 /// Search parameters for a google web search.
+#[derive(Debug)]
 pub struct SearchParams {
     pub url: String,
     pub args: HashMap<String, String>,
@@ -70,6 +71,7 @@ fn open_url(url: &str) -> crate::Result<()> {
     let res = open::that_detached(url);
 
     if res.is_ok() {
+        println!("Opened URL: {}", url);
         Ok(())
     } else {
         Err(Box::new(res.err().unwrap()))
@@ -79,18 +81,19 @@ fn open_url(url: &str) -> crate::Result<()> {
 /// Perform a basic search using the given search parameters.
 ///
 /// Optionally open the search results in the default browser.
-pub fn basic_search(mut options: SearchParams, open: &bool) -> crate::Result<()> {
+pub fn basic_search(mut options: SearchParams, json: &bool) -> crate::Result<()> {
     options.add_api_data();
     let url: Url = options.into();
     println!("Url: {}", url);
-    if *open {
-        basic_search_open(url)
-    } else {
+    if *json {
         basic_search_json(url)
+    } else {
+        basic_search_open(url)
     }
 }
 
 fn basic_search_open(url: Url) -> crate::Result<()> {
+    println!("Opening URL: {}", url);
     let res = open_url(url.as_ref());
     res
 }

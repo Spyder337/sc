@@ -3,26 +3,15 @@ use chrono::NaiveDateTime;
 use diesel::prelude::*;
 
 /// A google search history item.
-#[derive(Debug, Queryable, AsChangeset, Selectable, Clone)]
+#[derive(Debug, Queryable, AsChangeset, Selectable, Clone, Insertable)]
 #[diesel(table_name = searches)]
-pub struct Search {
+pub struct SearchEntry {
     pub id: i32,
     pub query: String,
     pub website: Option<String>,
     pub allintext: Option<String>,
     #[diesel(sql_type = Timestamp)]
     pub time_stamp: NaiveDateTime,
-}
-
-/// A new google search history item.
-///
-/// This struct is used to insert a new search history item into the database.
-#[derive(Insertable)]
-#[diesel(table_name = searches)]
-pub struct NewSearch {
-    pub query: String,
-    pub website: Option<String>,
-    pub allintext: Option<String>,
 }
 
 /// A quote.
