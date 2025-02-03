@@ -1,9 +1,10 @@
+pub mod core;
+
 use clap::{Subcommand, arg};
 
-use crate::{
-    database::sqlite::get_quote_random,
-    quote::{add_quote, get_daily, get_quote_by_id, get_quotes_all},
-};
+use core::{add_quote, get_daily, get_quote_by_id, get_quotes_all};
+
+use crate::database::sqlite::get_quote_random;
 
 use super::CommandHandler;
 

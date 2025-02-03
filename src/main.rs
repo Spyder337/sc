@@ -7,17 +7,12 @@ use std::{
 };
 
 use clap::Parser;
-use commands::{ClapParser, CommandHandler};
-use environment::Environment;
+use commands::{ClapParser, CommandHandler, environment::core::Environment};
 use lazy_static::lazy_static;
 
 mod colors;
 mod commands;
 mod database;
-mod environment;
-mod greeting;
-mod quote;
-mod web;
 
 /// Wrapper type for std::result::Result.
 pub type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;

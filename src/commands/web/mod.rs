@@ -1,11 +1,13 @@
+mod core;
+
 use clap::Subcommand;
 
-use crate::{
-    database::{self},
-    web::{SearchParams, basic_search, query_string_builder},
-};
+use core::{SearchParams, basic_search, query_string_builder};
+
+use crate::database::{self};
 
 use super::CommandHandler;
+
 /// A set of web utilities.
 #[derive(Debug, Subcommand)]
 pub(crate) enum WebCommands {

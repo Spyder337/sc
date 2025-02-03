@@ -1,16 +1,19 @@
-mod completions;
-mod env;
-mod git;
-mod quotes;
-mod web;
+pub mod completions;
+pub mod environment;
+pub mod git;
+pub mod greeting;
+pub mod quotes;
+pub mod web;
 
 use clap::{Parser, Subcommand};
 
 use completions::CompletionCommands;
-use env::EnvCommands;
+use environment::EnvCommands;
 use git::GitCommands;
 use quotes::QuoteCommands;
 use web::WebCommands;
+
+pub use environment::core::{Environment, time_now};
 
 #[derive(Debug, Subcommand)]
 pub enum Commands {
@@ -60,7 +63,7 @@ impl CommandHandler for ClapParser {
             Commands::Quote { command } => command.handle(),
             Commands::Completions { command } => command.handle(),
             Commands::Welcome => {
-                print!("{}", crate::greeting::welcome_msg());
+                print!("{}", greeting::welcome_msg());
                 Ok(())
             }
         }

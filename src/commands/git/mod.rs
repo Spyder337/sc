@@ -1,4 +1,4 @@
-mod core;
+pub mod core;
 
 use core::{clone_repo, create_commit};
 use std::{
@@ -10,9 +10,11 @@ use std::{
 use clap::Subcommand;
 use git2::{Repository, Status, StatusOptions};
 
-use crate::{ENV, commands, environment::time_now};
-
 use super::CommandHandler;
+use crate::{ENV, commands};
+
+use super::time_now;
+
 /// A set of git utilities.
 #[derive(Debug, Subcommand)]
 pub(crate) enum GitCommands {

@@ -1,6 +1,7 @@
+pub mod core;
+use super::Environment;
+use crate::{ENV, colors::apply_color};
 use clap::Subcommand;
-
-use crate::{ENV, environment::Environment, colors::apply_color};
 
 use super::CommandHandler;
 /// A set of utilities for interacting with the environment.
@@ -99,8 +100,16 @@ impl CommandHandler for EnvCommands {
                 git_ignore_url,
                 conn_str,
                 google_search_api_key,
-                google_search_engine_id
-            } => set_env(git_name, git_email, git_dir, git_ignore_url, conn_str, google_search_api_key, google_search_engine_id),
+                google_search_engine_id,
+            } => set_env(
+                git_name,
+                git_email,
+                git_dir,
+                git_ignore_url,
+                conn_str,
+                google_search_api_key,
+                google_search_engine_id,
+            ),
             EnvCommands::Get {
                 git_name,
                 git_email,
@@ -108,8 +117,16 @@ impl CommandHandler for EnvCommands {
                 git_ignore_url,
                 conn_str,
                 google_search_api_key,
-                google_search_engine_id
-            } => get_env(git_name, git_email, git_dir, git_ignore_url, conn_str, google_search_api_key, google_search_engine_id),
+                google_search_engine_id,
+            } => get_env(
+                git_name,
+                git_email,
+                git_dir,
+                git_ignore_url,
+                conn_str,
+                google_search_api_key,
+                google_search_engine_id,
+            ),
             EnvCommands::Reset {
                 git_name,
                 git_email,
@@ -117,8 +134,16 @@ impl CommandHandler for EnvCommands {
                 git_ignore_url,
                 conn_str,
                 google_search_api_key,
-                google_search_engine_id
-            } => reset_env(git_name, git_email, git_dir, git_ignore_url, conn_str, google_search_api_key, google_search_engine_id),
+                google_search_engine_id,
+            } => reset_env(
+                git_name,
+                git_email,
+                git_dir,
+                git_ignore_url,
+                conn_str,
+                google_search_api_key,
+                google_search_engine_id,
+            ),
             EnvCommands::Save => {
                 crate::ENV.lock().unwrap().save();
                 Ok(())
@@ -147,67 +172,95 @@ fn set_env(
 ) -> crate::Result<()> {
     let env = &mut ENV.lock().unwrap();
     if let Some(git_name) = git_name {
-        println!("Setting {} to: {}", 
-            apply_color("magenta", "Git User Name"), 
-            git_name);
+        println!(
+            "Setting {} to: {}",
+            apply_color("magenta", "Git User Name"),
+            git_name
+        );
         env.git_name = git_name.clone();
-        println!("{} set to: {}",
-            apply_color("magenta", "Git User Name"), 
-            env.git_name);
+        println!(
+            "{} set to: {}",
+            apply_color("magenta", "Git User Name"),
+            env.git_name
+        );
     }
     if let Some(git_email) = git_email {
-        println!("Setting {} to: {}", 
-            apply_color("magenta", "Git Email"), 
-            git_email);
-        env.git_email = git_email.clone();
-        println!("{} set to: {}",
+        println!(
+            "Setting {} to: {}",
             apply_color("magenta", "Git Email"),
-            env.git_email);
+            git_email
+        );
+        env.git_email = git_email.clone();
+        println!(
+            "{} set to: {}",
+            apply_color("magenta", "Git Email"),
+            env.git_email
+        );
     }
     if let Some(git_dir) = git_dir {
-        println!("Setting {} to: {}", 
-            apply_color("magenta", "Git Directory"), 
-            git_dir);
+        println!(
+            "Setting {} to: {}",
+            apply_color("magenta", "Git Directory"),
+            git_dir
+        );
         env.git_dir = git_dir.clone().into();
-        println!("{} set to: {}",
-            apply_color("magenta", "Git Directory"), 
-            env.git_dir.display());
+        println!(
+            "{} set to: {}",
+            apply_color("magenta", "Git Directory"),
+            env.git_dir.display()
+        );
     }
     if let Some(git_ignore_url) = git_ignore_url {
-        println!("Setting {} to: {}", 
-            apply_color("magenta", "Git Ignore URL"), 
-            git_ignore_url);
+        println!(
+            "Setting {} to: {}",
+            apply_color("magenta", "Git Ignore URL"),
+            git_ignore_url
+        );
         env.git_ignore_url = git_ignore_url.clone();
-        println!("{} set to: {}",
-            apply_color("magenta", "Git Ignore URL"), 
-            env.git_ignore_url);
+        println!(
+            "{} set to: {}",
+            apply_color("magenta", "Git Ignore URL"),
+            env.git_ignore_url
+        );
     }
     if let Some(conn_str) = conn_str {
-        println!("Setting {} to: {}", 
-            apply_color("magenta", "Connection String"), 
-            conn_str);
+        println!(
+            "Setting {} to: {}",
+            apply_color("magenta", "Connection String"),
+            conn_str
+        );
         env.conn_str = conn_str.clone();
-        println!("{} set to: {}",
-            apply_color("magenta", "Connection String"), 
-            env.conn_str);
+        println!(
+            "{} set to: {}",
+            apply_color("magenta", "Connection String"),
+            env.conn_str
+        );
     }
     if let Some(google_search_api_key) = google_search_api_key {
-        println!("Setting {} to: {}", 
-            apply_color("magenta", "Google Search API Key"), 
-            google_search_api_key);
+        println!(
+            "Setting {} to: {}",
+            apply_color("magenta", "Google Search API Key"),
+            google_search_api_key
+        );
         env.google_search_api_key = google_search_api_key.clone();
-        println!("{} set to: {}",
-            apply_color("magenta", "Google Search API Key"), 
-            env.google_search_engine_id);
+        println!(
+            "{} set to: {}",
+            apply_color("magenta", "Google Search API Key"),
+            env.google_search_engine_id
+        );
     }
     if let Some(google_search_engine_id) = google_search_engine_id {
-        println!("Setting {} to: {}", 
-            apply_color("magenta", "Google Search Engine ID"), 
-            google_search_engine_id);
+        println!(
+            "Setting {} to: {}",
+            apply_color("magenta", "Google Search Engine ID"),
+            google_search_engine_id
+        );
         env.google_search_engine_id = google_search_engine_id.clone();
-        println!("{} set to: {}",
-            apply_color("magenta", "Google Search Engine ID"), 
-            env.google_search_engine_id);
+        println!(
+            "{} set to: {}",
+            apply_color("magenta", "Google Search Engine ID"),
+            env.google_search_engine_id
+        );
     }
     env.save();
     Ok(())
@@ -223,31 +276,42 @@ fn get_env(
     google_search_engine_id: &bool,
 ) -> crate::Result<()> {
     let mut add_all = false;
-    if !git_name && !git_email && !git_dir && !git_ignore_url && !conn_str && !google_search_api_key && !google_search_engine_id {
+    if !git_name
+        && !git_email
+        && !git_dir
+        && !git_ignore_url
+        && !conn_str
+        && !google_search_api_key
+        && !google_search_engine_id
+    {
         add_all = true;
     }
     let mut env_str = String::with_capacity(256);
     let env = ENV.lock().unwrap();
     if add_all || *git_name {
-        env_str.push_str(&format!("{}: {}\n", 
-        apply_color("magenta", "Git User Name"), 
-        env.git_name));
+        env_str.push_str(&format!(
+            "{}: {}\n",
+            apply_color("magenta", "Git User Name"),
+            env.git_name
+        ));
     }
     if add_all || *git_email {
-        env_str.push_str(&format!("{}: {}\n", 
-        apply_color("magenta", "Git Email"), 
-        env.git_email));
+        env_str.push_str(&format!(
+            "{}: {}\n",
+            apply_color("magenta", "Git Email"),
+            env.git_email
+        ));
     }
     if add_all || *git_dir {
         env_str.push_str(&format!(
-            "{}: {}\n", 
+            "{}: {}\n",
             apply_color("magenta", "Git Directory"),
             env.git_dir.display()
         ));
     }
     if add_all || *git_ignore_url {
         env_str.push_str(&format!(
-            "{}: {}\n", 
+            "{}: {}\n",
             apply_color("magenta", "Git Ignore URL"),
             env.git_ignore_url
         ));
@@ -261,14 +325,14 @@ fn get_env(
     }
     if add_all || *google_search_api_key {
         env_str.push_str(&format!(
-            "{}: {}\n", 
+            "{}: {}\n",
             apply_color("magenta", "Google Search API Key"),
             env.google_search_api_key
         ));
     }
     if add_all || *google_search_engine_id {
         env_str.push_str(&format!(
-            "{}: {}\n", 
+            "{}: {}\n",
             apply_color("magenta", "Google Search Engine ID"),
             env.google_search_engine_id
         ));
