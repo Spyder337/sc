@@ -127,8 +127,6 @@ fn add_commit(
         return Err(Box::new(repo.err().unwrap()));
     }
 
-    println!("Paths: {paths:?}");
-
     let path_specs = paths.clone().unwrap_or(vec![".".to_string()]);
 
     let r = &mut repo.unwrap();
@@ -141,8 +139,6 @@ fn add_commit(
         }
         todo!("Implement unstaging files.")
     } else {
-        // println!("Staging new files...");
-
         //  Equivalent to git add --update
         let res = commands::git::core::add_files(&path_specs, None);
 
