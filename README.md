@@ -20,7 +20,20 @@ To develop the crate make sure that the rust nightly toolchain is installed.
 
 ### Diesel Setup
 
-[Diesel][repo-diesel] currently manages the servers.
+[Diesel][repo-diesel] currently manages the databases.
+
+> Linux installation
+>
+> ```sh
+> curl --proto '=https' --tlsv1.2 -LsSf https://github.com/diesel-rs/diesel/releases/latest/download/> diesel_cli-installer.sh | sh
+> ```
+
+> Windows installation
+>
+> ```powershell
+> Set-ExecutionPolicy RemoteSigned -scope CurrentUser
+> irm https://github.com/diesel-rs/diesel/releases/latest/download/diesel_cli-installer.ps1 | iex
+> ```
 
 Create a `.env` file in the cargo directory that looks like
 
