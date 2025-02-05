@@ -8,6 +8,7 @@ use std::{
 
 use clap::Parser;
 use commands::{ClapParser, CommandHandler, environment::core::Environment};
+use directories::UserDirs;
 use lazy_static::lazy_static;
 
 mod colors;
@@ -33,9 +34,27 @@ lazy_static! {
     pub static ref COLORS: HashMap<&'static str, &'static str> = colors::colors_init();
 }
 
-/// Replace backslashes with forward slashes in a path.
+/// Replace backslashes with forward slashes in a [`Path`].
 pub fn sanitize_path(path_buf: &Path) -> PathBuf {
     path_buf.to_string_lossy().replace("\\", "/").into()
+}
+
+/// Replace backslashes with forwards slashes in a [`PathBuf`].
+pub fn sanitize_pathbuf(path_buf: PathBuf) -> PathBuf {
+    path_buf.to_string_lossy().replace("\\", "/").into()
+}
+
+/// Replace the '~' with the home directory
+pub fn expand_home(path: &Path) -> PathBuf {
+    let mut new_path: PathBuf = PathBuf::new();
+    if path.starts_with("~") {
+        let dirs = UserDirs::new().unwrap();
+        let base_dir = dirs.home_dir().to_path_buf();
+        let sub_path: PathBuf = path.iter().skip(1).collect();
+        new_path.push(base_dir);
+        new_path.push(sub_path);
+    }
+    new_path
 }
 
 fn main() -> Result<()> {

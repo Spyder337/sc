@@ -4,14 +4,14 @@ use core::{clone_repo, create_commit};
 use std::{
     fs,
     io::{Error, Write},
-    path::Path,
+    path::{Path, PathBuf},
 };
 
 use clap::Subcommand;
 use git2::{Repository, Status, StatusOptions};
 
 use super::CommandHandler;
-use crate::{ENV, commands};
+use crate::{commands, expand_home, sanitize_path, sanitize_pathbuf, ENV};
 
 use super::time_now;
 
@@ -247,34 +247,64 @@ fn traverse_dir(dir: Box<Path>, acc: &mut Vec<Box<Path>>) {
     }
 }
 
+//  TODO:   Write a function to list all the repos in the git_dir.
+//          It should only return the grandchild directories of the git_dir.
+
+fn traverse_git_dirs(dir: &PathBuf, root: &PathBuf, paths: &mut Vec<Box<Path>>) -> crate::Result<()> {
+    if dir.is_dir() {
+        for entry in fs::read_dir(dir.clone().into_boxed_path())? {
+            let entry = entry?;
+            let path = entry.path();
+            //  If the parent path is the git_dir then traverse again.
+            if path.parent().unwrap() == root {
+                let _ = traverse_git_dirs(&path, root, paths);
+            }
+            //  If the grandparent path is the git_dir then add the path to the list.
+            else if path.parent().unwrap().parent().unwrap() == root {
+                paths.push(path.into_boxed_path());
+            }
+        }
+    }
+    Ok(())
+}
+
 fn git_list(json: bool) -> crate::Result<()> {
-    let dir = crate::ENV.lock().unwrap().git_dir.clone();
+    let env = crate::ENV.lock().unwrap();
+    let mut dir = expand_home(env.git_dir.clone().as_path());
+    dir = sanitize_pathbuf(dir);
     let exists = dir.exists();
     if !exists {
         println!("Directory does not exist.");
+        println!("{:?}", dir);
         return Err(Box::new(Error::new(
             std::io::ErrorKind::NotFound,
             "Directory does not exist.",
         )));
     }
     let mut paths: Vec<Box<Path>> = Vec::new();
-    traverse_dir(dir.clone().into_boxed_path(), &mut paths);
-    if !json {
-        println!("Listing repos in: {dir:?}");
+    let res= traverse_git_dirs(&dir, &dir, &mut paths);
 
-        println!("Directories:");
-        for path in paths {
-            println!("{:?}", path);
-        }
-    } else {
-        let json = serde_json::to_string_pretty(&paths);
-        if json.is_err() {
-            return Err(Box::new(json.err().unwrap()));
-        } else {
-            println!("{}", json.unwrap());
-        }
+    match res {
+        Ok(_) => {
+            if !json {
+                println!("Listing repos in: {dir:?}");
+
+                println!("Directories:");
+                for path in paths {
+                    println!("{:?}", sanitize_path(&path));
+                }
+            } else {
+                let json = serde_json::to_string_pretty(&paths);
+                if json.is_err() {
+                    return Err(Box::new(json.err().unwrap()));
+                } else {
+                    println!("{}", json.unwrap());
+                }
+            }
+            Ok(())
+        },
+        Err(e) => Err(e),
     }
-    Ok(())
 }
 
 /// A set of .gitignore utilities.
