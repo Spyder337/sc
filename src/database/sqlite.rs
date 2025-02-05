@@ -68,7 +68,7 @@ pub fn get_daily_quote() -> DbResult<Quote> {
 
     let conn = &mut establish_connection()?;
     let result = daily_quotes
-        .order(time_stamp.desc())
+        .order(id.desc())
         .first::<DailyQuote>(conn);
 
     match result {
@@ -76,7 +76,8 @@ pub fn get_daily_quote() -> DbResult<Quote> {
         //  If it is not from today, get a new random quote and insert it as the daily quote.
         Ok(q) => {
             let current_date = chrono::Local::now().date_naive();
-            if q.time_stamp.date() != current_date {
+            let recent_date = q.time_stamp.date();
+            if recent_date < current_date {
                 let rand_quote = get_quote_random()?;
                 let new_daily_quote = NewDailyQuote {
                     quote_id: rand_quote.id,
