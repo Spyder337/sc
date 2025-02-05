@@ -222,34 +222,6 @@ fn add_commit(
     }
 }
 
-fn traverse_dir(dir: Box<Path>, acc: &mut Vec<Box<Path>>) {
-    let entries = fs::read_dir(dir).unwrap();
-    let git_dir = ENV.lock().unwrap().git_dir.clone();
-    for entry in entries {
-        let entry = entry.unwrap();
-        let path = entry.path();
-        if path.is_dir() {
-            if path.components().any(|x| {
-                x.as_os_str() == "target"
-                    || x.as_os_str() == "obj"
-                    || x.as_os_str() == ".git"
-                    || x.as_os_str() == "bin"
-            }) {
-                continue;
-            }
-
-            if path.parent().unwrap().parent().unwrap() == git_dir.to_path_buf() {
-                acc.push(entry.path().into_boxed_path());
-            }
-
-            traverse_dir(path.into_boxed_path(), acc);
-        }
-    }
-}
-
-//  TODO:   Write a function to list all the repos in the git_dir.
-//          It should only return the grandchild directories of the git_dir.
-
 fn traverse_git_dirs(dir: &PathBuf, root: &PathBuf, paths: &mut Vec<Box<Path>>) -> crate::Result<()> {
     if dir.is_dir() {
         for entry in fs::read_dir(dir.clone().into_boxed_path())? {
