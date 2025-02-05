@@ -57,6 +57,11 @@ pub fn expand_home(path: &Path) -> PathBuf {
     new_path
 }
 
+/// Replace the '~' with the home directory and sanitize the path.
+pub fn expand_sanitized_home(path: &Path) -> PathBuf {
+    sanitize_path(&expand_home(path))
+}
+
 fn main() -> Result<()> {
     let parser = ClapParser::parse();
     parser.handle()

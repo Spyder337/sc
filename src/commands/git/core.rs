@@ -11,6 +11,8 @@ use git2::{
     SubmoduleIgnore,
 };
 
+use crate::expand_sanitized_home;
+
 //
 //
 //  Code Sourced from https://github.com/rust-lang/git2-rs/blob/master/examples/status.rs.
@@ -223,12 +225,29 @@ fn print(state: &mut State) {
 
 /// Clone a repository.
 pub fn clone_repo(url: &str, dir: &Option<String>) -> crate::Result<()> {
-    let path: &Path;
+    let env = crate::ENV.lock().unwrap();
+    
+    //  Break the url into multiple components.
+    let path: PathBuf;
+    let url_components = url.split("/").collect::<Vec<&str>>();
+    //  Get the repository name and the user name.
+    let mut repo_name: String = url_components.last().unwrap().to_string();
+    let user_name = url_components.iter().rev().nth(1).unwrap();
+    repo_name = repo_name.replace(".git", "");
+
+    //  Create the path to the repository.
     if let Some(d) = dir {
-        path = Path::new(d);
+        path = PathBuf::from(d).join(repo_name);
     } else {
-        path = Path::new(".");
+        let temp = env.git_dir.join(user_name).join(repo_name);
+        if temp.starts_with("~") {
+            path = expand_sanitized_home(&temp);
+        } else {
+            path = temp;
+        }
     }
+    println!("Cloning into: {}", path.display());
+
     let state = RefCell::new(State {
         progress: None,
         total: 0,
@@ -263,7 +282,7 @@ pub fn clone_repo(url: &str, dir: &Option<String>) -> crate::Result<()> {
     let res = RepoBuilder::new()
         .fetch_options(fo)
         .with_checkout(co)
-        .clone(url, path);
+        .clone(url, path.as_path());
 
     println!();
 

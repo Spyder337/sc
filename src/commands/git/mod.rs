@@ -11,7 +11,7 @@ use clap::Subcommand;
 use git2::{Repository, Status, StatusOptions};
 
 use super::CommandHandler;
-use crate::{commands, expand_home, sanitize_path, sanitize_pathbuf, ENV};
+use crate::{commands, expand_sanitized_home, sanitize_path, ENV};
 
 use super::time_now;
 
@@ -27,12 +27,11 @@ pub(crate) enum GitCommands {
     Clone {
         /// Repository to clone.
         ///
-        /// The repository can be a URL or a shorthand like `owner/repo`.
-        /// The url can be a ssh or https url.
+        /// The repository can be a URL must be a https url.
         repo: String,
         /// Directory to clone the repo to.
         ///
-        /// If no repo is provided then the repo will be cloned to
+        /// If no directory is provided then the repo will be cloned to
         /// `git_dir/owner/repo`.
         dir: Option<String>,
     },
@@ -222,9 +221,9 @@ fn add_commit(
     }
 }
 
-fn traverse_git_dirs(dir: &PathBuf, root: &PathBuf, paths: &mut Vec<Box<Path>>) -> crate::Result<()> {
+fn traverse_git_dirs(dir: &Path, root: &PathBuf, paths: &mut Vec<Box<Path>>) -> crate::Result<()> {
     if dir.is_dir() {
-        for entry in fs::read_dir(dir.clone().into_boxed_path())? {
+        for entry in fs::read_dir(dir)? {
             let entry = entry?;
             let path = entry.path();
             //  If the parent path is the git_dir then traverse again.
@@ -242,8 +241,7 @@ fn traverse_git_dirs(dir: &PathBuf, root: &PathBuf, paths: &mut Vec<Box<Path>>) 
 
 fn git_list(json: bool) -> crate::Result<()> {
     let env = crate::ENV.lock().unwrap();
-    let mut dir = expand_home(env.git_dir.clone().as_path());
-    dir = sanitize_pathbuf(dir);
+    let dir = expand_sanitized_home(env.git_dir.clone().as_path());
     let exists = dir.exists();
     if !exists {
         println!("Directory does not exist.");
