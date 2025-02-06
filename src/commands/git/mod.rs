@@ -32,7 +32,7 @@ pub(crate) enum GitCommands {
         /// Directory to clone the repo to.
         ///
         /// If no directory is provided then the repo will be cloned to
-        /// `git_dir/owner/repo`.
+        /// `git_dir/user/repo`.
         dir: Option<String>,
     },
     /// List cloned repositories in the `git_dir`.

@@ -129,6 +129,7 @@ impl CommandHandler for HistoryCommands {
     }
 }
 
+/// List search history.
 fn history_list(to: Option<String>, from: Option<String>) -> crate::Result<()> {
     let res = database::sqlite::get_search_range(from.unwrap_or_default(), to.unwrap_or_default());
     if res.is_err() {
@@ -140,6 +141,7 @@ fn history_list(to: Option<String>, from: Option<String>) -> crate::Result<()> {
     Ok(())
 }
 
+/// Clear search history.
 fn history_clear(
     to: Option<String>,
     from: Option<String>,
@@ -153,6 +155,12 @@ fn history_clear(
     Ok(())
 }
 
+/// Search history. 
+/// 
+/// # Arguments
+/// query: The search query to search for.
+/// site: The site to filter searches by.
+/// allintext: The required text to filter searches by.
 fn history_search(
     query: String,
     site: Option<String>,

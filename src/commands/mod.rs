@@ -17,22 +17,27 @@ pub use environment::core::{Environment, time_now};
 
 #[derive(Debug, Subcommand)]
 pub enum Commands {
+    /// Search google for a query or view search history.
     Web {
         #[command(subcommand)]
         command: WebCommands,
     },
+    /// Manage a git repository.
     Git {
         #[command(subcommand)]
         command: GitCommands,
     },
+    /// Manage the environment.
     Env {
         #[command(subcommand)]
         command: EnvCommands,
     },
+    /// Add and get quotes from the database.
     Quote {
         #[command(subcommand)]
         command: QuoteCommands,
     },
+    /// Generate shell completions for the specified shell.
     Completions {
         #[command(subcommand)]
         command: CompletionCommands,

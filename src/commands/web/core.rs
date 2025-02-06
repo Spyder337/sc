@@ -27,6 +27,8 @@ impl SearchParams {
         s
     }
 
+    /// Add the API key and search engine ID to the search parameters.
+    /// This is required for the Google Custom Search JSON API.
     pub fn add_api_data(&mut self) {
         self.args.insert(
             "key".to_string(),

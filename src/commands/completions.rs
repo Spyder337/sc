@@ -47,6 +47,11 @@ pub enum Shells {
     Zsh,
 }
 
+/// Generate completions for the specified shell.
+/// 
+/// # Arguments
+/// shell: The shell to generate completions for.
+/// out_path: The path to write the completions to. If None, write to stdout.
 pub(crate) fn completion_generate(shell: &Shells, out_path: &Option<String>) {
     let mut buffer: Box<dyn Write>;
 

@@ -9,8 +9,6 @@ use crate::database::sqlite::get_quote_random;
 
 use super::CommandHandler;
 
-//  TODO: Implement the commands for calling the functions.
-
 /// Add and get quotes from the database.
 #[derive(Debug, Subcommand)]
 pub(crate) enum QuoteCommands {
@@ -41,6 +39,7 @@ impl CommandHandler for QuoteCommands {
     fn handle(&self) -> crate::Result<()> {
         match self {
             QuoteCommands::Add { author, quote } => {
+                //  If both the author and quote are None, prompt the user for input.
                 if author.is_none() && quote.is_none() {
                     let mut quote_input = String::new();
                     let mut author_input = String::new();
@@ -58,7 +57,9 @@ impl CommandHandler for QuoteCommands {
                         Err(e) => Err(e.to_string().into()),
                         
                     }
-                } else if author.is_none() || quote.is_none() {
+                } 
+                //  If either the author or quote is None, prompt the user for the missing input.
+                else if author.is_none() || quote.is_none() {
                     if author.is_none() {
                         let mut author_input = String::new();
                         println!("Enter the author: \nPress Enter to submit.");
@@ -82,7 +83,9 @@ impl CommandHandler for QuoteCommands {
                             Err(e) => Err(e.to_string().into()),
                         }
                     }
-                } else {
+                } 
+                //  If both the author and quote are provided, add the quote to the database.
+                else {
                     let res = add_quote(quote.as_ref().unwrap(), author.as_ref().unwrap());
                     match res {
                         Ok(_) => Ok(()),
@@ -90,7 +93,6 @@ impl CommandHandler for QuoteCommands {
                     }
                 }
             }
-            //  TODO: Return the current daily quote or generate a new one.
             QuoteCommands::Daily => {
                 let daily = get_daily();
                 match daily {
