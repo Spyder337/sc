@@ -3,6 +3,7 @@ pub mod core;
 use clap::{Subcommand, arg};
 
 use core::{add_quote, get_daily, get_quote_by_id, get_quotes_all};
+use std::io::stdin;
 
 use crate::database::sqlite::get_quote_random;
 
@@ -14,6 +15,8 @@ use super::CommandHandler;
 #[derive(Debug, Subcommand)]
 pub(crate) enum QuoteCommands {
     /// Add a new quote to the database.
+    /// 
+    /// If the author or quote is not provided, the user will be prompted to enter them.
     Add {
         #[arg(short = 'a', long)]
         author: Option<String>,
@@ -37,14 +40,48 @@ pub(crate) enum QuoteCommands {
 impl CommandHandler for QuoteCommands {
     fn handle(&self) -> crate::Result<()> {
         match self {
-            //  TODO: Implement a menu and argument options for adding a quote.
             QuoteCommands::Add { author, quote } => {
                 if author.is_none() && quote.is_none() {
-                    println!("Please provide a quote and author.\n Use --help for usage");
-                    Ok(())
+                    let mut quote_input = String::new();
+                    let mut author_input = String::new();
+                    println!("Enter the quote: \nPress Enter to submit.");
+                    while quote_input.is_empty() {
+                        stdin().read_line(&mut quote_input).unwrap();
+                    }
+                    println!("Enter the author: \nPress Enter to submit.");
+                    while author_input.is_empty() {
+                        stdin().read_line(&mut author_input).unwrap();
+                    }
+                    let res = add_quote(quote_input.trim(), author_input.trim());   
+                    match res {
+                        Ok(_) => Ok(()),
+                        Err(e) => Err(e.to_string().into()),
+                        
+                    }
                 } else if author.is_none() || quote.is_none() {
-                    println!("Please provide an author or a quote.\n Use --help for usage.");
-                    Ok(())
+                    if author.is_none() {
+                        let mut author_input = String::new();
+                        println!("Enter the author: \nPress Enter to submit.");
+                        while author_input.is_empty() {
+                            stdin().read_line(&mut author_input).unwrap();
+                        }
+                        let res = add_quote(quote.as_ref().unwrap(), author_input.trim());
+                        match res {
+                            Ok(_) => Ok(()),
+                            Err(e) => Err(e.to_string().into()),
+                        }
+                    } else {
+                        let mut quote_input = String::new();
+                        println!("Enter the quote: \nPress Enter to submit.");
+                        while quote_input.is_empty() {
+                            stdin().read_line(&mut quote_input).unwrap();
+                        }
+                        let res = add_quote(quote_input.trim(), author.as_ref().unwrap());
+                        match res {
+                            Ok(_) => Ok(()),
+                            Err(e) => Err(e.to_string().into()),
+                        }
+                    }
                 } else {
                     let res = add_quote(quote.as_ref().unwrap(), author.as_ref().unwrap());
                     match res {
