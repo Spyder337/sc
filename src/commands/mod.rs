@@ -10,7 +10,7 @@ use clap::{Parser, Subcommand};
 use completions::CompletionCommands;
 use environment::EnvCommands;
 use git::GitCommands;
-use quotes::QuoteCommands;
+use quotes::{core::get_daily, QuoteCommands};
 use web::WebCommands;
 
 pub use environment::core::{Environment, time_now};
@@ -63,7 +63,8 @@ impl CommandHandler for ClapParser {
             Commands::Quote { command } => command.handle(),
             Commands::Completions { command } => command.handle(),
             Commands::Welcome => {
-                print!("{}", greeting::welcome_msg());
+                println!("{}", greeting::welcome_msg());
+                println!("{}", get_daily().unwrap());
                 Ok(())
             }
         }

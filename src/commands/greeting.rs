@@ -6,15 +6,13 @@ pub fn welcome_msg() -> String {
 
     let mut msg = format!(
         "Welcome {}!\n",
-        apply_color("magenta", env.git_name.as_str()),
+        apply_color("magenta_bright", &env.git_name),
     );
     msg.push_str(
-        format!(
+        &format!(
             "Today is {}.\n\n",
-            apply_color("green", date.format("%A, %B %d, %Y").to_string().as_str()),
-        )
-        .as_str(),
+            &apply_color("green_bright", &date.format("%A, %B %d, %Y").to_string()),
+        ),
     );
-
     msg
 }

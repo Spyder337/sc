@@ -1,4 +1,4 @@
-use crate::database::schema::{daily_quotes, quotes, searches};
+use crate::{colors::apply_color, database::schema::{daily_quotes, quotes, searches}};
 use chrono::NaiveDateTime;
 use diesel::prelude::*;
 
@@ -46,7 +46,9 @@ pub struct Quote {
 
 impl std::fmt::Display for Quote {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_str(format!("{}\n\t- {}", self.quote, self.author).as_str())
+        f.write_str(&format!("{}\n\t- {}", 
+        apply_color("magenta_bright", &self.quote), 
+        apply_color("green_bright", &self.author)))
     }
 }
 
