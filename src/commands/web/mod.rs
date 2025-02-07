@@ -101,8 +101,11 @@ pub(crate) enum HistoryCommands {
         site: Option<String>,
     },
     /// If no arguments are provided, all searches are returned.
+    /// 
     /// If a query is provided, searches with that query are returned.
+    /// 
     /// If a site is provided, searches with that site are returned.
+    /// 
     /// If allintext is provided, searches with that text are returned.
     Search {
         /// Search query.
