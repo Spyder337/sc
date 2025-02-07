@@ -52,12 +52,11 @@ pub fn get_quotes() -> DbResult<Vec<Quote>> {
 }
 
 /// Get a quote by its ID.
-pub fn get_quote(id: i32) -> DbResult<Quote> {
+pub fn get_quote(quote_id: i32) -> DbResult<Quote> {
     use crate::database::schema::quotes::dsl::*;
 
     let conn = &mut establish_connection()?;
-    let result = quotes.find(id).first::<Quote>(conn);
-
+    let result = quotes.find(quote_id).first::<Quote>(conn);
     match result {
         Ok(q) => Ok(q),
         Err(e) => Err(e.to_string().into()),
@@ -79,7 +78,10 @@ pub fn get_daily_quote() -> DbResult<Quote> {
         Ok(q) => {
             let current_date = chrono::Local::now().date_naive();
             let recent_date = q.time_stamp.date();
-            if recent_date < current_date {
+            if recent_date == current_date {
+                let new_quote = get_quote(q.quote_id)?;
+                Ok(new_quote)
+            } else {
                 let rand_quote = get_quote_random()?;
                 let new_daily_quote = NewDailyQuote {
                     quote_id: rand_quote.id,
@@ -87,9 +89,6 @@ pub fn get_daily_quote() -> DbResult<Quote> {
                 };
                 insert_daily_quote(new_daily_quote)?;
                 Ok(rand_quote)
-            } else {
-                let new_quote = get_quote(q.quote_id)?;
-                Ok(new_quote)
             }
         }
         //  If there is no daily quote, get a new random quote and insert it as the daily quote.
