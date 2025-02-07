@@ -100,15 +100,19 @@ pub(crate) enum HistoryCommands {
         #[arg(short = None, long)]
         site: Option<String>,
     },
+    /// If no arguments are provided, all searches are returned.
+    /// If a query is provided, searches with that query are returned.
+    /// If a site is provided, searches with that site are returned.
+    /// If allintext is provided, searches with that text are returned.
     Search {
         /// Search query.
-        #[arg(short = None, long)]
-        query: String,
+        #[arg(short = 'q', long)]
+        query: Option<String>,
         /// Site to restrict search to.
-        #[arg(short = None, long)]
+        #[arg(short = 's', long)]
         site: Option<String>,
         /// Search for text in the page.
-        #[arg(short = None, long)]
+        #[arg(short = 'a', long)]
         allintext: Option<String>,
     },
 }
@@ -162,14 +166,20 @@ fn history_clear(
 /// site: The site to filter searches by.
 /// allintext: The required text to filter searches by.
 fn history_search(
-    query: String,
+    query: Option<String>,
     site: Option<String>,
     allintext: Option<String>,
 ) -> crate::Result<()> {
     let res = database::sqlite::get_search_by(query, site, allintext);
-    if res.is_err() {
-        return Err(res.err().unwrap());
+    
+    match res {
+        Ok(searches) => {
+            for search in searches {
+                println!("{}", search);
+            }
+            Ok(())
+        }
+        Err(e) => Err(e),
+        
     }
-    println!("{:?}", res.unwrap());
-    Ok(())
 }

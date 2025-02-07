@@ -1,4 +1,6 @@
 #![allow(unused)]
+use std::fmt::format;
+
 use chrono::{DateTime, Local, NaiveDateTime};
 use diesel::{dsl::now, prelude::*};
 
@@ -133,11 +135,11 @@ pub fn get_search(id: i32) -> DbResult<SearchEntry> {
 }
 
 /// Get a search by its query.
-pub fn get_search_by_query(query: String) -> DbResult<SearchEntry> {
+pub fn get_search_by_query(query_str: String) -> DbResult<Vec<SearchEntry>> {
     use crate::database::schema::searches::dsl::*;
 
     let conn = &mut establish_connection()?;
-    let result = searches.filter(query.eq(query)).first::<SearchEntry>(conn);
+    let result = searches.filter(query.like(&format!("{}%", query_str))).load::<SearchEntry>(conn);
 
     match result {
         Ok(q) => Ok(q),
@@ -147,22 +149,61 @@ pub fn get_search_by_query(query: String) -> DbResult<SearchEntry> {
 
 /// Get a search by its query, website, and allintext.
 pub fn get_search_by(
-    query: String,
-    site: Option<String>,
-    allintext: Option<String>,
-) -> DbResult<SearchEntry> {
+    query_str: Option<String>,
+    site_str: Option<String>,
+    allintext_str: Option<String>,
+) -> DbResult<Vec<SearchEntry>> {
     use crate::database::schema::searches::dsl::*;
 
     let conn = &mut establish_connection()?;
-    let result = searches
-        .filter(
-            query
-                .eq(query)
-                .and(website.eq(site))
-                .and(allintext.eq(allintext)),
-        )
-        .first::<SearchEntry>(conn);
-
+    let result;
+    if query_str.is_some() && site_str.is_none() && allintext_str.is_none() {
+        result = searches
+            .filter(query.like(&format!("{}%", query_str.unwrap())))
+            .load::<SearchEntry>(conn);
+    } else if query_str.is_some() && site_str.is_none() && allintext_str.is_some() {
+        result = searches
+            .filter(
+                query
+                    .like(&format!("{}%", query_str.unwrap()))
+                    .and(allintext.like(&format!("{}%", allintext_str.unwrap_or("".to_string())))),
+            )
+            .load(conn);
+    } else if query_str.is_some() && site_str.is_some() && allintext_str.is_none() {
+        result = searches
+            .filter(
+                query
+                    .like(&format!("{}%", query_str.unwrap()))
+                    .and(website.like(&format!("{}%", site_str.unwrap_or("".to_string())))),
+            )
+            .load(conn);
+    } else if query_str.is_some() && site_str.is_some() && allintext_str.is_some(){
+        result = searches
+            .filter(
+                query
+                    .like(&format!("{}%", query_str.unwrap()))
+                    .and(website.like(&format!("{}%", site_str.unwrap())))
+                    .and(allintext.like(&format!("{}%", allintext_str.unwrap()))),
+            )
+            .load(conn);
+    } else if site_str.is_some() && allintext_str.is_none() {
+        result = searches
+            .filter(website.like(&format!("{}%", site_str.unwrap())))
+            .load(conn);
+    } else if site_str.is_some() && allintext_str.is_some() {
+        result = searches
+            .filter(
+                website.like(&format!("{}%", site_str.unwrap()))
+                    .and(allintext.like(&format!("{}%", allintext_str.unwrap()))),
+            )
+            .load(conn);
+    } else if allintext_str.is_some() {
+        result = searches
+            .filter(allintext.like(&format!("{}%", allintext_str.unwrap())))
+            .load(conn);
+    } else {
+        result = searches.load(conn);
+    }
     match result {
         Ok(q) => Ok(q),
         Err(e) => Err(e.to_string().into()),
