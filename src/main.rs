@@ -31,7 +31,7 @@ lazy_static! {
     /// The environment settings.
     pub static ref ENV: Mutex<Environment> = Mutex::new(Environment::load());
     /// Color codes for the terminal.
-    /// 
+    ///
     /// Currently supported codes:
     /// - black
     /// - red, red_bright
