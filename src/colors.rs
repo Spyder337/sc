@@ -44,7 +44,13 @@ pub(crate) fn colors_init() -> HashMap<&'static str, &'static str> {
 
 /// Applies an ANSI color code to a string.
 ///
+/// If an invalid color is given, the text is returned as is.
+/// 
 /// Note: Reset is called automatically after the text.
 pub(crate) fn apply_color(color: &str, text: &str) -> String {
-    format!("{}{}{}", COLORS[color], text, COLORS["reset"])
+    if COLORS.contains_key(color) {
+        format!("{}{}{}", COLORS[color], text, COLORS["reset"])
+    } else {
+        text.to_string()
+    }
 }
