@@ -6,7 +6,7 @@ use core::{SearchParams, basic_search, query_string_builder};
 
 use crate::{
     commands::time_now,
-    database::{self, model::SearchEntry},
+    database::{self, SearchEntry},
 };
 
 use super::CommandHandler;
@@ -101,11 +101,11 @@ pub(crate) enum HistoryCommands {
         site: Option<String>,
     },
     /// If no arguments are provided, all searches are returned.
-    /// 
+    ///
     /// If a query is provided, searches with that query are returned.
-    /// 
+    ///
     /// If a site is provided, searches with that site are returned.
-    /// 
+    ///
     /// If allintext is provided, searches with that text are returned.
     Search {
         /// Search query.
@@ -162,8 +162,8 @@ fn history_clear(
     Ok(())
 }
 
-/// Search history. 
-/// 
+/// Search history.
+///
 /// # Arguments
 /// query: The search query to search for.
 /// site: The site to filter searches by.
@@ -174,7 +174,7 @@ fn history_search(
     allintext: Option<String>,
 ) -> crate::Result<()> {
     let res = database::sqlite::get_search_by(query, site, allintext);
-    
+
     match res {
         Ok(searches) => {
             for search in searches {
@@ -183,6 +183,5 @@ fn history_search(
             Ok(())
         }
         Err(e) => Err(e),
-        
     }
 }

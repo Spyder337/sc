@@ -11,7 +11,7 @@ use clap::Subcommand;
 use git2::{Repository, Status, StatusOptions};
 
 use super::CommandHandler;
-use crate::{commands, expand_sanitized_home, sanitize_path, ENV};
+use crate::{ENV, commands, expand_sanitized_home, sanitize_path};
 
 use super::time_now;
 
@@ -252,7 +252,7 @@ fn git_list(json: bool) -> crate::Result<()> {
         )));
     }
     let mut paths: Vec<Box<Path>> = Vec::new();
-    let res= traverse_git_dirs(&dir, &dir, &mut paths);
+    let res = traverse_git_dirs(&dir, &dir, &mut paths);
 
     match res {
         Ok(_) => {
@@ -272,7 +272,7 @@ fn git_list(json: bool) -> crate::Result<()> {
                 }
             }
             Ok(())
-        },
+        }
         Err(e) => Err(e),
     }
 }

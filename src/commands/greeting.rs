@@ -8,11 +8,9 @@ pub fn welcome_msg() -> String {
         "Welcome {}!\n",
         apply_color("magenta_bright", &env.git_name),
     );
-    msg.push_str(
-        &format!(
-            "Today is {}.\n\n",
-            &apply_color("green_bright", &date.format("%A, %B %d, %Y").to_string()),
-        ),
-    );
+    msg.push_str(&format!(
+        "Today is {}.\n\n",
+        &apply_color("green_bright", &date.format("%A, %B %d, %Y").to_string()),
+    ));
     msg
 }

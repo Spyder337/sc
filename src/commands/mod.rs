@@ -10,7 +10,7 @@ use clap::{Parser, Subcommand};
 use completions::CompletionCommands;
 use environment::EnvCommands;
 use git::GitCommands;
-use quotes::{core::get_daily, QuoteCommands};
+use quotes::{QuoteCommands, core::get_daily};
 use web::WebCommands;
 
 pub use environment::core::{Environment, time_now};

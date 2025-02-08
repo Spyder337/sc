@@ -226,7 +226,7 @@ fn print(state: &mut State) {
 /// Clone a repository.
 pub fn clone_repo(url: &str, dir: &Option<String>) -> crate::Result<()> {
     let env = crate::ENV.lock().unwrap();
-    
+
     //  Break the url into multiple components.
     let path: PathBuf;
     let url_components = url.split("/").collect::<Vec<&str>>();

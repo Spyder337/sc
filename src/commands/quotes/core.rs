@@ -1,6 +1,6 @@
 use crate::Result;
-use crate::database::model::{NewQuote, Quote};
 use crate::database::sqlite::{get_daily_quote, get_quote, get_quotes, insert_quote};
+use crate::database::{NewQuote, Quote};
 
 pub fn add_quote(quote: &str, author: &str) -> Result<()> {
     let new_quote = NewQuote {

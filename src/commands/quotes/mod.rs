@@ -13,7 +13,7 @@ use super::CommandHandler;
 #[derive(Debug, Subcommand)]
 pub(crate) enum QuoteCommands {
     /// Add a new quote to the database.
-    /// 
+    ///
     /// If the author or quote is not provided, the user will be prompted to enter them.
     Add {
         #[arg(short = 'a', long)]
@@ -51,13 +51,12 @@ impl CommandHandler for QuoteCommands {
                     while author_input.is_empty() {
                         stdin().read_line(&mut author_input).unwrap();
                     }
-                    let res = add_quote(quote_input.trim(), author_input.trim());   
+                    let res = add_quote(quote_input.trim(), author_input.trim());
                     match res {
                         Ok(_) => Ok(()),
                         Err(e) => Err(e.to_string().into()),
-                        
                     }
-                } 
+                }
                 //  If either the author or quote is None, prompt the user for the missing input.
                 else if author.is_none() || quote.is_none() {
                     if author.is_none() {
@@ -83,7 +82,7 @@ impl CommandHandler for QuoteCommands {
                             Err(e) => Err(e.to_string().into()),
                         }
                     }
-                } 
+                }
                 //  If both the author and quote are provided, add the quote to the database.
                 else {
                     let res = add_quote(quote.as_ref().unwrap(), author.as_ref().unwrap());

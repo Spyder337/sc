@@ -378,15 +378,18 @@ fn reset_env(
 }
 
 fn get_files() -> crate::Result<()> {
-    println!("\n{}: {}", 
-        apply_color("magenta_bright", "Config Directory"), 
+    println!(
+        "\n{}: {}",
+        apply_color("magenta_bright", "Config Directory"),
         apply_color("green_bright", crate::APP_DIR.to_str().unwrap())
     );
-    println!("{}: {}", 
+    println!(
+        "{}: {}",
         apply_color("magenta_bright", "Config File"),
         apply_color("green_bright", crate::CONFIG_FILE.to_str().unwrap())
     );
-    println!("{}: {}\n", 
+    println!(
+        "{}: {}\n",
         apply_color("magenta_bright", "Database File"),
         apply_color("green_bright", crate::SQL_FILE.to_str().unwrap())
     );
