@@ -2,9 +2,14 @@
 
 use std::path::PathBuf;
 
-pub mod model;
+pub mod models;
 mod schema;
 pub mod sqlite;
+
+pub use models::{
+    quote::{DailyQuote, NewDailyQuote, NewQuote, Quote},
+    search::SearchEntry,
+};
 
 /// A wrapper for [std::result::Result] with a [Box]ed [std::error::Error].
 pub type DbResult<T> = std::result::Result<T, Box<dyn std::error::Error + Send + Sync>>;
