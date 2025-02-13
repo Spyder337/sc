@@ -1,6 +1,5 @@
 use crate::{
-    colors::apply_color,
-    database::schema::{daily_quotes, quotes},
+    database::schema::{daily_quotes, quotes}, Colorize,
 };
 use diesel::prelude::*;
 
@@ -17,8 +16,8 @@ impl std::fmt::Display for Quote {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.write_str(&format!(
             "{}\n\t- {}",
-            apply_color("magenta_bright", &self.quote),
-            apply_color("green_bright", &self.author)
+            &self.quote.magenta_bright(),
+            &self.author.green_bright()
         ))
     }
 }

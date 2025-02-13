@@ -1,5 +1,22 @@
-use crate::COLORS;
+use lazy_static::lazy_static;
+
 use std::collections::HashMap;
+
+lazy_static!(
+    /// Color codes for the terminal.
+    ///
+    /// Currently supported codes:
+    /// - black
+    /// - red, red_bright
+    /// - green, green_bright
+    /// - yellow, yellow_bright
+    /// - blue, blue_bright
+    /// - magenta, magenta_bright
+    /// - cyan, cyan_bright
+    /// - white
+    /// - reset
+    pub static ref COLORS: HashMap<&'static str, &'static str> = colors_init();
+);
 
 /// Generates a map of color codes for the terminal.
 ///
@@ -22,7 +39,7 @@ use std::collections::HashMap;
 /// - cyan, cyan_bright
 /// - white
 /// - reset
-pub(crate) fn colors_init() -> HashMap<&'static str, &'static str> {
+fn colors_init() -> HashMap<&'static str, &'static str> {
     let mut colors = HashMap::new();
     colors.insert("black", "\x1b[30m");
     colors.insert("red", "\x1b[31m");
@@ -47,10 +64,158 @@ pub(crate) fn colors_init() -> HashMap<&'static str, &'static str> {
 /// If an invalid color is given, the text is returned as is.
 /// 
 /// Note: Reset is called automatically after the text.
-pub(crate) fn apply_color(color: &str, text: &str) -> String {
+fn apply_color(color: &str, text: &str) -> String {
     if COLORS.contains_key(color) {
         format!("{}{}{}", COLORS[color], text, COLORS["reset"])
     } else {
         text.to_string()
+    }
+}
+
+/// Trait for applying colors to strings.
+pub trait Colorize {
+    /// Applies the black color to a string.
+    fn black(&self) -> String;
+    /// Applies the red color to a string.
+    fn red(&self) -> String;
+    /// Applies the bright red color to a string.
+    fn red_bright(&self) -> String;
+    /// Applies the green color to a string.
+    fn green(&self) -> String;
+    /// Applies the bright green color to a string.
+    fn green_bright(&self) -> String;
+    /// Applies the yellow color to a string.
+    fn yellow(&self) -> String;
+    /// Applies the bright yellow color to a string.
+    fn yellow_bright(&self) -> String;
+    /// Applies the blue color to a string.
+    fn blue(&self) -> String;
+    /// Applies the bright blue color to a string.
+    fn blue_bright(&self) -> String;
+    /// Applies the magenta color to a string.
+    fn magenta(&self) -> String;
+    /// Applies the bright magenta color to a string.
+    fn magenta_bright(&self) -> String;
+    /// Applies the cyan color to a string.
+    fn cyan(&self) -> String;
+    /// Applies the bright cyan color to a string.
+    fn cyan_bright(&self) -> String;
+    /// Applies the white color to a string.
+    fn white(&self) -> String;
+}
+
+impl Colorize for String {
+    fn black(&self) -> String {
+        apply_color("black", self)
+    }
+
+    fn red(&self) -> String {
+        apply_color("red", self)
+    }
+
+    fn red_bright(&self) -> String {
+        apply_color("red_bright", self)
+    }
+
+    fn green(&self) -> String {
+        apply_color("green", self)
+    }
+
+    fn green_bright(&self) -> String {
+        apply_color("green_bright", self)
+    }
+
+    fn yellow(&self) -> String {
+        apply_color("yellow", self)
+    }
+
+    fn yellow_bright(&self) -> String {
+        apply_color("yellow_bright", self)
+    }
+
+    fn blue(&self) -> String {
+        apply_color("blue", self)
+    }
+
+    fn blue_bright(&self) -> String {
+        apply_color("blue_bright", self)
+    }
+
+    fn magenta(&self) -> String {
+        apply_color("magenta", self)
+    }
+
+    fn magenta_bright(&self) -> String {
+        apply_color("magenta_bright", self)
+    }
+
+    fn cyan(&self) -> String {
+        apply_color("cyan", self)
+    }
+
+    fn cyan_bright(&self) -> String {
+        apply_color("cyan_bright", self)
+    }
+
+    fn white(&self) -> String {
+        apply_color("white", self)
+    }
+}
+
+impl Colorize for &str {
+    fn black(&self) -> String {
+        apply_color("black", self)
+    }
+
+    fn red(&self) -> String {
+        apply_color("red", self)
+    }
+
+    fn red_bright(&self) -> String {
+        apply_color("red_bright", self)
+    }
+
+    fn green(&self) -> String {
+        apply_color("green", self)
+    }
+
+    fn green_bright(&self) -> String {
+        apply_color("green_bright", self)
+    }
+
+    fn yellow(&self) -> String {
+        apply_color("yellow", self)
+    }
+
+    fn yellow_bright(&self) -> String {
+        apply_color("yellow_bright", self)
+    }
+
+    fn blue(&self) -> String {
+        apply_color("blue", self)
+    }
+
+    fn blue_bright(&self) -> String {
+        apply_color("blue_bright", self)
+    }
+
+    fn magenta(&self) -> String {
+        apply_color("magenta", self)
+    }
+
+    fn magenta_bright(&self) -> String {
+        apply_color("magenta_bright", self)
+    }
+
+    fn cyan(&self) -> String {
+        apply_color("cyan", self)
+    }
+
+    fn cyan_bright(&self) -> String {
+        apply_color("cyan_bright", self)
+    }
+
+    fn white(&self) -> String {
+        apply_color("white", self)
     }
 }

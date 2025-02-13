@@ -1,6 +1,6 @@
 pub mod core;
 use super::Environment;
-use crate::{ENV, colors::apply_color};
+use crate::{Colorize, ENV};
 use clap::Subcommand;
 
 use super::CommandHandler;
@@ -174,91 +174,91 @@ fn set_env(
     if let Some(git_name) = git_name {
         println!(
             "Setting {} to: {}",
-            apply_color("magenta", "Git User Name"),
+            "Git User Name".magenta(),
             git_name
         );
         env.git_name = git_name.clone();
         println!(
             "{} set to: {}",
-            apply_color("magenta", "Git User Name"),
+            "Git User Name".magenta(),
             env.git_name
         );
     }
     if let Some(git_email) = git_email {
         println!(
             "Setting {} to: {}",
-            apply_color("magenta", "Git Email"),
+            "Git Email".magenta(),
             git_email
         );
         env.git_email = git_email.clone();
         println!(
             "{} set to: {}",
-            apply_color("magenta", "Git Email"),
+            "Git Email".magenta(),
             env.git_email
         );
     }
     if let Some(git_dir) = git_dir {
         println!(
             "Setting {} to: {}",
-            apply_color("magenta", "Git Directory"),
+            "Git Directory".magenta(),
             git_dir
         );
         env.git_dir = git_dir.clone().into();
         println!(
             "{} set to: {}",
-            apply_color("magenta", "Git Directory"),
+            "Git Directory".magenta(),
             env.git_dir.display()
         );
     }
     if let Some(git_ignore_url) = git_ignore_url {
         println!(
             "Setting {} to: {}",
-            apply_color("magenta", "Git Ignore URL"),
+            "Git Ignore URL".magenta(),
             git_ignore_url
         );
         env.git_ignore_url = git_ignore_url.clone();
         println!(
             "{} set to: {}",
-            apply_color("magenta", "Git Ignore URL"),
+            "Git Ignore URL".magenta(),
             env.git_ignore_url
         );
     }
     if let Some(conn_str) = conn_str {
         println!(
             "Setting {} to: {}",
-            apply_color("magenta", "Connection String"),
+            "Connection String".magenta(),
             conn_str
         );
         env.conn_str = conn_str.clone();
         println!(
             "{} set to: {}",
-            apply_color("magenta", "Connection String"),
+            "Connection String".magenta(),
             env.conn_str
         );
     }
     if let Some(google_search_api_key) = google_search_api_key {
         println!(
             "Setting {} to: {}",
-            apply_color("magenta", "Google Search API Key"),
+            "Google Search API Key".magenta(),
             google_search_api_key
         );
         env.google_search_api_key = google_search_api_key.clone();
         println!(
             "{} set to: {}",
-            apply_color("magenta", "Google Search API Key"),
+            "Google Search API Key".magenta(),
             env.google_search_engine_id
         );
     }
     if let Some(google_search_engine_id) = google_search_engine_id {
         println!(
             "Setting {} to: {}",
-            apply_color("magenta", "Google Search Engine ID"),
+            "Google Search Engine ID".magenta(),
             google_search_engine_id
         );
         env.google_search_engine_id = google_search_engine_id.clone();
         println!(
             "{} set to: {}",
-            apply_color("magenta", "Google Search Engine ID"),
+            "Google Search Engine ID".magenta(),
             env.google_search_engine_id
         );
     }
@@ -291,49 +291,49 @@ fn get_env(
     if add_all || *git_name {
         env_str.push_str(&format!(
             "{}: {}\n",
-            apply_color("magenta", "Git User Name"),
+            "Git User Name".magenta(),
             env.git_name
         ));
     }
     if add_all || *git_email {
         env_str.push_str(&format!(
             "{}: {}\n",
-            apply_color("magenta", "Git Email"),
+            "Git Email".magenta(),
             env.git_email
         ));
     }
     if add_all || *git_dir {
         env_str.push_str(&format!(
             "{}: {}\n",
-            apply_color("magenta", "Git Directory"),
+            "Git Directory".magenta(),
             env.git_dir.display()
         ));
     }
     if add_all || *git_ignore_url {
         env_str.push_str(&format!(
             "{}: {}\n",
-            apply_color("magenta", "Git Ignore URL"),
+            "Git Ignore URL".magenta(),
             env.git_ignore_url
         ));
     }
     if add_all || *conn_str {
         env_str.push_str(&format!(
             "{}: {}\n",
-            apply_color("magenta", "Connection String"),
+            "Connection String".magenta(),
             env.conn_str
         ));
     }
     if add_all || *google_search_api_key {
         env_str.push_str(&format!(
             "{}: {}\n",
-            apply_color("magenta", "Google Search API Key"),
+            "Google Search API Key".magenta(),
             env.google_search_api_key
         ));
     }
     if add_all || *google_search_engine_id {
         env_str.push_str(&format!(
             "{}: {}\n",
-            apply_color("magenta", "Google Search Engine ID"),
+            "Google Search Engine ID".magenta(),
             env.google_search_engine_id
         ));
     }
@@ -380,18 +380,18 @@ fn reset_env(
 fn get_files() -> crate::Result<()> {
     println!(
         "\n{}: {}",
-        apply_color("magenta_bright", "Config Directory"),
-        apply_color("green_bright", crate::APP_DIR.to_str().unwrap())
+        "Config Directory".magenta_bright(),
+        crate::APP_DIR.to_str().unwrap().green_bright()
     );
     println!(
         "{}: {}",
-        apply_color("magenta_bright", "Config File"),
-        apply_color("green_bright", crate::CONFIG_FILE.to_str().unwrap())
+        "Config File".magenta_bright(),
+        crate::CONFIG_FILE.to_str().unwrap().green_bright()
     );
     println!(
         "{}: {}\n",
-        apply_color("magenta_bright", "Database File"),
-        apply_color("green_bright", crate::SQL_FILE.to_str().unwrap())
+        "Database File".magenta_bright(),
+        crate::SQL_FILE.to_str().unwrap().green_bright()
     );
     Ok(())
 }

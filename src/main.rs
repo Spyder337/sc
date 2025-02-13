@@ -17,6 +17,7 @@ mod database;
 
 /// Wrapper type for std::result::Result.
 pub type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
+pub use crate::colors::Colorize;
 
 lazy_static! {
     /// The application directory.
@@ -30,19 +31,6 @@ lazy_static! {
     pub static ref SQL_FILE: PathBuf = sanitize_path(&APP_DIR.join("database.db"));
     /// The environment settings.
     pub static ref ENV: Mutex<Environment> = Mutex::new(Environment::load());
-    /// Color codes for the terminal.
-    ///
-    /// Currently supported codes:
-    /// - black
-    /// - red, red_bright
-    /// - green, green_bright
-    /// - yellow, yellow_bright
-    /// - blue, blue_bright
-    /// - magenta, magenta_bright
-    /// - cyan, cyan_bright
-    /// - white
-    /// - reset
-    pub static ref COLORS: HashMap<&'static str, &'static str> = colors::colors_init();
 }
 
 /// Replace backslashes with forward slashes in a [`Path`].
