@@ -1,5 +1,6 @@
 use crate::{
-    database::schema::{daily_quotes, quotes}, Colorize,
+    Colorize,
+    database::schema::{daily_quotes, quotes},
 };
 use diesel::prelude::*;
 

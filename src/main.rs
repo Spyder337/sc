@@ -1,7 +1,6 @@
 #![deny(missing_docs)]
 //! # ShellCommander
 use std::{
-    collections::HashMap,
     path::{Path, PathBuf},
     sync::Mutex,
 };

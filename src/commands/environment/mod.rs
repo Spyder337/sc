@@ -88,6 +88,8 @@ pub(crate) enum EnvCommands {
     Files,
     /// Generate a .env file.
     GenerateDotEnv,
+    /// Initialize the database.
+    InitDatabase,
 }
 
 impl CommandHandler for EnvCommands {
@@ -157,6 +159,10 @@ impl CommandHandler for EnvCommands {
                 let _ = crate::database::generate_dotenv();
                 Ok(())
             }
+            EnvCommands::InitDatabase => {
+                let _ = crate::database::init_database();
+                Ok(())
+            }
         }
     }
 }
@@ -172,37 +178,17 @@ fn set_env(
 ) -> crate::Result<()> {
     let env = &mut ENV.lock().unwrap();
     if let Some(git_name) = git_name {
-        println!(
-            "Setting {} to: {}",
-            "Git User Name".magenta(),
-            git_name
-        );
+        println!("Setting {} to: {}", "Git User Name".magenta(), git_name);
         env.git_name = git_name.clone();
-        println!(
-            "{} set to: {}",
-            "Git User Name".magenta(),
-            env.git_name
-        );
+        println!("{} set to: {}", "Git User Name".magenta(), env.git_name);
     }
     if let Some(git_email) = git_email {
-        println!(
-            "Setting {} to: {}",
-            "Git Email".magenta(),
-            git_email
-        );
+        println!("Setting {} to: {}", "Git Email".magenta(), git_email);
         env.git_email = git_email.clone();
-        println!(
-            "{} set to: {}",
-            "Git Email".magenta(),
-            env.git_email
-        );
+        println!("{} set to: {}", "Git Email".magenta(), env.git_email);
     }
     if let Some(git_dir) = git_dir {
-        println!(
-            "Setting {} to: {}",
-            "Git Directory".magenta(),
-            git_dir
-        );
+        println!("Setting {} to: {}", "Git Directory".magenta(), git_dir);
         env.git_dir = git_dir.clone().into();
         println!(
             "{} set to: {}",
@@ -224,17 +210,9 @@ fn set_env(
         );
     }
     if let Some(conn_str) = conn_str {
-        println!(
-            "Setting {} to: {}",
-            "Connection String".magenta(),
-            conn_str
-        );
+        println!("Setting {} to: {}", "Connection String".magenta(), conn_str);
         env.conn_str = conn_str.clone();
-        println!(
-            "{} set to: {}",
-            "Connection String".magenta(),
-            env.conn_str
-        );
+        println!("{} set to: {}", "Connection String".magenta(), env.conn_str);
     }
     if let Some(google_search_api_key) = google_search_api_key {
         println!(
@@ -296,11 +274,7 @@ fn get_env(
         ));
     }
     if add_all || *git_email {
-        env_str.push_str(&format!(
-            "{}: {}\n",
-            "Git Email".magenta(),
-            env.git_email
-        ));
+        env_str.push_str(&format!("{}: {}\n", "Git Email".magenta(), env.git_email));
     }
     if add_all || *git_dir {
         env_str.push_str(&format!(

@@ -24,3 +24,4 @@ serde = { version = "1.0.217", features = ["derive"] }
 serde_json = "1.0.138"
 tokio = { version = "1.43.0", features = ["full"] }
 toml = "0.8.20"
+diesel_migrations = { version = "2.2.0", features = ["sqlite"] }

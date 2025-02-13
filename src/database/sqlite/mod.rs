@@ -16,7 +16,7 @@ pub use search::*;
 /// Create a connection to the sqlite database.
 ///
 /// The connection string is stored in the `ENV` global variable.
-fn establish_connection() -> DbResult<SqliteConnection> {
+pub(crate) fn establish_connection() -> DbResult<SqliteConnection> {
     let env = crate::ENV.lock().unwrap();
     let conn = SqliteConnection::establish(&env.conn_str)?;
     Ok(conn)

@@ -62,7 +62,7 @@ fn colors_init() -> HashMap<&'static str, &'static str> {
 /// Applies an ANSI color code to a string.
 ///
 /// If an invalid color is given, the text is returned as is.
-/// 
+///
 /// Note: Reset is called automatically after the text.
 fn apply_color(color: &str, text: &str) -> String {
     if COLORS.contains_key(color) {
