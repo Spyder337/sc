@@ -16,7 +16,7 @@ INSERT INTO quotes (id, quote, author) VALUES (6, "Character means that the pers
 
 INSERT INTO quotes (id, quote, author) VALUES (7, "Mathematics would certainly have not come into existence if one had known from the beginning that there was in nature no exactly straight line, no actual circle, no absolute magnitude.", "Friedrich Nietzsche");
 
-INSERT INTO quotes (id, quote, author) VALUES (8, "He who fights with monsters should see to it that he himself does not become a monster. And if you gaze long into an abyss, the abyss also gazes into you.", "Friedrich Nietzsche");
+INSERT INTO quotes (id, quote, author) VALUES (8, "He who fights with monsters should see to it that he himself does not become a monster.\nAnd if you gaze long into an abyss, the abyss also gazes into you.", "Friedrich Nietzsche");
 
 INSERT INTO quotes (id, quote, author) VALUES (9, "The liar is a person who uses the valid designations, the words, in order to make something which is unreal appear to be real.", "Friedrich Nietzsche");
 

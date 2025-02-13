@@ -1,12 +1,11 @@
 #![allow(dead_code)]
 
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 
 pub mod models;
 mod schema;
 pub mod sqlite;
 
-use diesel_migrations::MigrationHarness;
 pub use models::{
     quote::{DailyQuote, NewDailyQuote, NewQuote, Quote},
     search::SearchEntry,
@@ -28,22 +27,10 @@ pub fn generate_dotenv() -> DbResult<()> {
     Ok(())
 }
 
-pub fn run_migrations() -> DbResult<()> {
-    use diesel_migrations::EmbeddedMigrations;
-    const MIGRATIONS: EmbeddedMigrations = diesel_migrations::embed_migrations!("./migrations");
-
-    let mut conn = sqlite::establish_connection()?;
-    let res = conn.run_pending_migrations(MIGRATIONS);
-    match res {
-        Ok(_) => Ok(()),
-        Err(e) => Err(e.into()),
-    }
-}
-
 pub fn init_database() -> DbResult<()> {
     if !PathBuf::from(".env").exists() {
         generate_dotenv()?;
     }
-    generate_dotenv()?;
-    run_migrations()
+    generate_dotenv()
+    // run_migrations()
 }
