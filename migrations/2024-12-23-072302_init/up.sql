@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS tasks(
     -- Optional description of the task
     desc TEXT,
     -- in progress, completed, incompleted
-    status TEXT NOT NULL,
+    status INT NOT NULL,
     -- time the task was created
     time_stamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     -- time the task is due

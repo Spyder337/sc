@@ -12,9 +12,9 @@ Calendars.
   - [ ] Current Tasks
   - [ ] Completed Tasks
 - [ ] New Task
-  - [ ] Command - Create Single Task
-  - [ ] Menu - Create Single Task
-  - [ ] Menu - Create Complex Task
+  - [x] Command - Create Single Task
+  - [x] Menu - Create Single Task
+  - [x] Menu - Create Complex Task
 - [ ] Task Marking
   - [ ] Completed
   - [ ] Incomplete - Missed appointments, deadlines, etc.

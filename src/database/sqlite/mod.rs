@@ -2,6 +2,7 @@
 
 mod quote;
 mod search;
+mod task;
 
 use std::fmt::format;
 
@@ -12,6 +13,7 @@ use super::{DailyQuote, DbResult, NewDailyQuote, NewQuote, Quote, SearchEntry};
 
 pub use quote::*;
 pub use search::*;
+pub use task::*;
 
 /// Create a connection to the sqlite database.
 ///
