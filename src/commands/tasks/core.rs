@@ -116,8 +116,6 @@ fn parse_input<T: FromStr + 'static>(prompt: &str, error_msg: &str) -> Option<T>
     println!("{prompt}");
     loop {
         let _ = std::io::stdin().read_line(&mut input);
-        println!("Raw input: {input}");
-        // General type cases.
         match input.trim().parse::<T>() {
             Ok(val) => {
                 output = Some(val);

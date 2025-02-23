@@ -11,7 +11,7 @@ Calendars.
   - [ ] Expanded - Display Full Nested Tasks
   - [ ] Current Tasks
   - [ ] Completed Tasks
-- [ ] New Task
+- [x] New Task
   - [x] Command - Create Single Task
   - [x] Menu - Create Single Task
   - [x] Menu - Create Complex Task

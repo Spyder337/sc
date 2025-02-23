@@ -2,13 +2,15 @@ mod core;
 
 pub use core::*;
 
-
 use chrono::{DateTime, Local};
 use clap::{Subcommand, arg};
 
 use crate::database::{
     models::task::{NewTask, NewTaskRelation, TaskStatus},
-    sqlite::{contains_task_id, insert_relation, insert_task},
+    sqlite::{
+        contains_task_id, get_all_root_tasks, get_all_tasks, get_task_by_id, insert_relation,
+        insert_task,
+    },
 };
 
 use super::CommandHandler;
@@ -16,6 +18,7 @@ use super::CommandHandler;
 /// Manage tasks in the database.
 #[derive(Debug, Subcommand)]
 pub enum TaskCommands {
+    /// Add a single task through command flags or a console menu.
     Add {
         /// The name of the task.
         #[arg(short = 'n', long, value_parser = task_string_validator,
@@ -38,6 +41,22 @@ pub enum TaskCommands {
         /// This flag is exclusive and will ignore all other flags.
         #[arg(short, long, exclusive = true)]
         menu: bool,
+    },
+    /// Get a single task or all root tasks.
+    Get {
+        /// The ID of the task to get.
+        /// 
+        /// If not provided, all root tasks will be displayed.
+        task_id: Option<i32>,
+        /// If provided, the task will be displayed in detailed format.
+        #[arg(long)]
+        detailed: bool,
+    },
+    /// Get all tasks in the database.
+    GetAll {
+        /// If provided, the tasks will be displayed in detailed format.
+        #[arg(long)]
+        detailed: bool,
     },
 }
 
@@ -121,12 +140,34 @@ impl CommandHandler for TaskCommands {
                     }
                 }
             }
+            TaskCommands::Get {
+                detailed,
+                task_id,
+            } => get_task_view( *detailed, *task_id),
+            TaskCommands::GetAll { detailed } => get_all_task_view( *detailed),
         }
     }
 }
 
+fn get_all_task_view(detailed: bool) -> crate::Result<()> {
+    let tasks = get_all_tasks().map_err(|e| e.to_string())?;
+    if tasks.is_empty() {
+        println!("No tasks to display.");
+    }
+    for task in tasks {
+        if !detailed {
+            println!("Task ({:02}): {:10}", task.id, task.task);
+            println!("Due: {}", due_date_display(task.due_date));
+            println!("Status: {}", (TaskStatus::from(task.status)).to_string());
+        } else {
+            println!("Task: {}", task.task);
+            println!("Description: {}", task.desc.unwrap_or("None".to_string()));
+        }
+    }
+    Ok(())
+}
+
 fn task_menu() -> crate::Result<()> {
-    println!("Task menu");
     //  Create the root task
     let current_task_res = create_task(None);
 
@@ -134,5 +175,43 @@ fn task_menu() -> crate::Result<()> {
     match current_task_res {
         Ok(_) => Ok(()),
         Err(e) => Err(e),
+    }
+}
+
+fn get_task_view(detailed: bool, task_id: Option<i32>) -> crate::Result<()> {
+    if task_id.is_none() {
+        let tasks = get_all_root_tasks().map_err(|e| e.to_string())?;
+        if tasks.is_empty() {
+            println!("No tasks to display.");
+        }
+
+        for task in tasks {
+            if detailed {
+                println!("Task: {}", task.task);
+                println!("Description: {}", task.desc.unwrap_or("None".to_string()));
+            } else {
+                print!("Task ({:02}): {:^80}", task.id, task.task);
+                println!(" Due: {}", due_date_display(task.due_date));
+                println!("Status: {}", (TaskStatus::from(task.status)).to_string());
+            }
+        }
+    } else {
+        let id = task_id.unwrap();
+        let task = get_task_by_id(id).map_err(|e| e.to_string())?;
+        if !detailed {
+            println!("Task ({}): {}", task.id, task.task);
+            println!("Due: {}", due_date_display(task.due_date));
+        } else {
+            println!("Task: {}", task.task);
+            println!("Description: {}", task.desc.unwrap_or("None".to_string()));
+        }
+    }
+    Ok(())
+}
+
+fn due_date_display(due_date: Option<chrono::NaiveDateTime>) -> String {
+    match due_date {
+        Some(date) => date.format("%Y-%m-%d %H:%M:%S").to_string(),
+        None => "".to_string(),
     }
 }
