@@ -1,8 +1,7 @@
 use diesel::{ExpressionMethods, QueryDsl, RunQueryDsl, SelectableHelper, TextExpressionMethods};
 
 use crate::database::{
-    DbResult,
-    models::task::{NewTask, NewTaskRelation, Task},
+    models::task::{NewTask, NewTaskRelation, Task, TaskStatus}, DbResult
 };
 
 /// Insert a new task into the database.
@@ -41,6 +40,7 @@ pub fn insert_task(new_task: &NewTask) -> DbResult<i32> {
     let res = diesel::insert_into(tasks)
         .values(&insert_task)
         .execute(&mut conn);
+ 
     match res {
         Ok(_) => Ok(insert_task.id),
         Err(e) => Err(e.to_string().into()),
@@ -98,10 +98,7 @@ pub fn get_task_by_id(task_id: i32) -> DbResult<Task> {
 
     let res = tasks.filter(id.eq(task_id)).first::<Task>(&mut conn);
 
-    match res {
-        Ok(t) => Ok(t),
-        Err(e) => Err(e.to_string().into()),
-    }
+    res.map_err(|e| e.to_string().into())
 }
 
 /// Get a task by its name.
@@ -123,10 +120,7 @@ pub fn get_task_by_name_fuzzy(name: &str) -> DbResult<Vec<Task>> {
         .filter(task.like(format!("%{}%", name)))
         .load::<Task>(&mut conn);
 
-    match res {
-        Ok(t) => Ok(t),
-        Err(e) => Err(e.to_string().into()),
-    }
+    res.map_err(|e| e.to_string().into())
 }
 
 pub fn get_all_tasks() -> DbResult<Vec<Task>> {
@@ -137,10 +131,26 @@ pub fn get_all_tasks() -> DbResult<Vec<Task>> {
 
     let res = tasks.load::<Task>(&mut conn);
 
-    match res {
-        Ok(t) => Ok(t),
-        Err(e) => Err(e.to_string().into()),
-    }
+    res.map_err(|e| e.to_string().into())
+}
+
+pub fn get_child_tasks(task_id: i32) -> DbResult<Vec<Task>> {
+    use crate::database::schema::tasks::dsl::*;
+
+    let mut conn = crate::database::sqlite::establish_connection().unwrap();
+
+    let child_tasks_res = crate::database::schema::task_relations::dsl::task_relations
+        .filter(crate::database::schema::task_relations::dsl::parent_id.eq(task_id))
+        .select(crate::database::schema::task_relations::dsl::child_id)
+        .load::<i32>(&mut conn);
+
+    let child_tasks = child_tasks_res.unwrap_or_default();
+
+    let res = tasks
+        .filter(id.eq_any(child_tasks))
+        .load::<Task>(&mut conn);
+
+    res.map_err(|e| e.to_string().into())
 }
 
 pub fn get_all_root_tasks() -> DbResult<Vec<Task>> {
@@ -159,10 +169,7 @@ pub fn get_all_root_tasks() -> DbResult<Vec<Task>> {
         .filter(crate::database::schema::tasks::dsl::id.ne_all(child_tasks))
         .load::<Task>(&mut conn);
 
-    match res {
-        Ok(t) => Ok(t),
-        Err(e) => Err(e.to_string().into()),
-    }
+        res.map_err(|e| e.to_string().into())
 }
 
 /// Returns the maximum ID of all tasks in the database.
@@ -196,6 +203,34 @@ pub fn contains_task_id(task_id: i32) -> DbResult<bool> {
 
     match res {
         Ok(t) => Ok(!t.is_empty()),
+        Err(e) => Err(e.to_string().into()),
+    }
+}
+
+pub fn get_tasks_by_due_date(due_date: chrono::NaiveDateTime) -> DbResult<Vec<Task>> {
+    use crate::database::schema::tasks::dsl::*;
+    use crate::database::sqlite::establish_connection;
+
+    let mut conn = establish_connection().unwrap();
+
+    let res = tasks
+        .filter(due_date.le(due_date))
+        .load::<Task>(&mut conn);
+
+    res.map_err(|e| e.to_string().into())
+}
+
+pub fn mark_task(task_id: i32, new_status: TaskStatus) -> DbResult<()> {
+    use crate::database::schema::tasks::dsl::*;
+
+    let mut conn = crate::database::sqlite::establish_connection().unwrap();
+
+    let res = diesel::update(tasks.filter(id.eq(task_id)))
+        .set(status.eq(new_status as i32))
+        .execute(&mut conn);
+
+    match res {
+        Ok(_) => Ok(()),
         Err(e) => Err(e.to_string().into()),
     }
 }

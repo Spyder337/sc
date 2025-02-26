@@ -8,17 +8,17 @@ Calendars.
 
 - [ ] Task List
   - [ ] Compact Mode
-  - [ ] Expanded - Display Full Nested Tasks
+  - [x] Expanded - Display Full Nested Tasks
   - [ ] Current Tasks
   - [ ] Completed Tasks
 - [x] New Task
   - [x] Command - Create Single Task
   - [x] Menu - Create Single Task
   - [x] Menu - Create Complex Task
-- [ ] Task Marking
-  - [ ] Completed
-  - [ ] Incomplete - Missed appointments, deadlines, etc.
-  - [ ] In Progress - Current appointments, deadlines, etc.
+- [x] Task Marking
+  - [x] Completed
+  - [x] Incomplete - Missed appointments, deadlines, etc.
+  - [x] In Progress - Current appointments, deadlines, etc.
 
 ## Program Installation
 

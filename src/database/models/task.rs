@@ -3,9 +3,10 @@ use std::fmt::Display;
 use crate::database::schema::task_relations;
 use crate::database::schema::tasks;
 use chrono::NaiveDateTime;
+use clap::ValueEnum;
 use diesel::prelude::*;
 
-#[derive(Debug)]
+#[derive(Debug, ValueEnum, Clone, Copy)]
 pub enum TaskStatus {
     InProgress = 0,
     Complete = 1,
@@ -19,6 +20,14 @@ impl ToString for TaskStatus {
             TaskStatus::Complete => "Complete".to_string(),
             TaskStatus::Incomplete => "Incomplete".to_string(),
         }
+    }
+}
+
+pub fn task_status_utf8(status: &TaskStatus) -> &str {
+    match status {
+        TaskStatus::InProgress => "⏳",
+        TaskStatus::Complete => "✅",
+        TaskStatus::Incomplete => "❎",
     }
 }
 

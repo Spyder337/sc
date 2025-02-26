@@ -1,15 +1,15 @@
 mod core;
 
 pub use core::*;
+use std::fmt;
 
 use chrono::{DateTime, Local};
 use clap::{Subcommand, arg};
 
 use crate::database::{
-    models::task::{NewTask, NewTaskRelation, TaskStatus},
+    models::task::{task_status_utf8, NewTask, NewTaskRelation, Task, TaskStatus},
     sqlite::{
-        contains_task_id, get_all_root_tasks, get_all_tasks, get_task_by_id, insert_relation,
-        insert_task,
+        contains_task_id, get_all_root_tasks, get_all_tasks, get_child_tasks, get_task_by_id, insert_relation, insert_task, mark_task
     },
 };
 
@@ -58,6 +58,13 @@ pub enum TaskCommands {
         #[arg(long)]
         detailed: bool,
     },
+    /// Mark a task
+    Mark {
+        /// The ID of the task to mark.
+        task_id: i32,
+        /// The status to mark the task as.
+        status: TaskStatus,
+    },
 }
 
 fn task_string_validator(val: &str) -> Result<String, String> {
@@ -101,50 +108,55 @@ impl CommandHandler for TaskCommands {
     fn handle(&self) -> crate::Result<()> {
         match self {
             TaskCommands::Add {
-                task_name,
-                task_desc,
-                menu,
-                due,
-                repeat_len,
-                parent,
-            } => {
-                if *menu {
-                    task_menu()
-                } else {
-                    let new_task = NewTask {
-                        task: task_name.clone().unwrap(),
-                        desc: task_desc.clone(),
-                        status: TaskStatus::Incomplete as i32,
-                        due_date: (*due).map(|d| d.naive_local()),
-                        renewal_duration: *repeat_len,
-                    };
-                    let res = insert_task(&new_task);
+                        task_name,
+                        task_desc,
+                        menu,
+                        due,
+                        repeat_len,
+                        parent,
+                    } => {
+                        if *menu {
+                            task_menu()
+                        } else {
+                            let new_task = NewTask {
+                                task: task_name.clone().unwrap(),
+                                desc: task_desc.clone(),
+                                status: TaskStatus::InProgress as i32,
+                                due_date: (*due).map(|d| d.naive_local()),
+                                renewal_duration: *repeat_len,
+                            };
+                            let res = insert_task(&new_task);
 
-                    match res {
-                        Ok(child_id) => {
-                            if let Some(parent_id) = parent {
-                                let relation = NewTaskRelation {
-                                    parent_id: *parent_id,
-                                    child_id,
-                                };
-                                let relation_res = insert_relation(relation);
-                                match relation_res {
-                                    Ok(_) => Ok(()),
-                                    Err(e) => Err(e.to_string().into()),
+                            match res {
+                                Ok(child_id) => {
+                                    if let Some(parent_id) = parent {
+                                        let relation = NewTaskRelation {
+                                            parent_id: *parent_id,
+                                            child_id,
+                                        };
+                                        let relation_res = insert_relation(relation);
+                                        match relation_res {
+                                            Ok(_) => Ok(()),
+                                            Err(e) => Err(e.to_string().into()),
+                                        }
+                                    } else {
+                                        Ok(())
+                                    }
                                 }
-                            } else {
-                                Ok(())
+                                Err(e) => Err(e.to_string().into()),
                             }
                         }
-                        Err(e) => Err(e.to_string().into()),
                     }
-                }
-            }
             TaskCommands::Get {
-                detailed,
-                task_id,
-            } => get_task_view( *detailed, *task_id),
+                        detailed,
+                        task_id,
+                    } => get_task_view( *detailed, *task_id),
             TaskCommands::GetAll { detailed } => get_all_task_view( *detailed),
+            TaskCommands::Mark { task_id, status } => 
+            {
+                let res = mark_task(*task_id, *status);
+                res.map_err(|e| e.to_string().into())
+            },
         }
     }
 }
@@ -187,23 +199,18 @@ fn get_task_view(detailed: bool, task_id: Option<i32>) -> crate::Result<()> {
 
         for task in tasks {
             if detailed {
-                println!("Task: {}", task.task);
-                println!("Description: {}", task.desc.unwrap_or("None".to_string()));
+                print_detailed(&task);
             } else {
-                print!("Task ({:02}): {:^80}", task.id, task.task);
-                println!(" Due: {}", due_date_display(task.due_date));
-                println!("Status: {}", (TaskStatus::from(task.status)).to_string());
+                print_task(&task);
             }
         }
     } else {
         let id = task_id.unwrap();
         let task = get_task_by_id(id).map_err(|e| e.to_string())?;
         if !detailed {
-            println!("Task ({}): {}", task.id, task.task);
-            println!("Due: {}", due_date_display(task.due_date));
+            print_task(&task);
         } else {
-            println!("Task: {}", task.task);
-            println!("Description: {}", task.desc.unwrap_or("None".to_string()));
+            print_detailed(&task);
         }
     }
     Ok(())
@@ -213,5 +220,30 @@ fn due_date_display(due_date: Option<chrono::NaiveDateTime>) -> String {
     match due_date {
         Some(date) => date.format("%Y-%m-%d %H:%M:%S").to_string(),
         None => "".to_string(),
+    }
+}
+
+fn print_task(task: &Task) -> () {
+    println!("Task ({:02}): {:<80} Due: {}", task.id, task.task, due_date_display(task.due_date));
+}
+
+fn print_detailed(task: &Task) -> () {
+    print!("Task ({:02}): {:<80} ", task.id, task.task);
+    println!("Due: {}", due_date_display(task.due_date));
+    if let Some(dur) = task.renewal_duration {
+        if dur > 0 {
+            let renew_str = format!("Renews every: {} days", dur);
+            print!("{:<92}", renew_str);
+            println!("Status: {}", task_status_utf8(&TaskStatus::from(task.status)));
+        }
+    }
+    else {
+        println!("Status: {}", task_status_utf8(&TaskStatus::from(task.status)));
+    }
+    println!("Description: {}", task.desc.clone().unwrap_or("None".to_string()));
+    println!("Subtasks:");
+    let children = get_child_tasks(task.id).unwrap();
+    for child in children {
+        println!("\t{} {:<40}{:<80}", task_status_utf8(&child.status.into()), child.task, child.desc.unwrap_or("None".to_string()));
     }
 }
