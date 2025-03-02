@@ -7,7 +7,7 @@ use crate::database::{
 /// Insert a new task into the database.
 pub fn insert_task(new_task: &NewTask) -> DbResult<i32> {
     use crate::database::schema::tasks::dsl::*;
-    let mut conn = crate::database::sqlite::establish_connection().unwrap();
+    let mut conn = crate::database::sqlite::establish_connection()?;
 
     let tasks_res = tasks.select(Task::as_select()).load::<Task>(&mut conn);
 
@@ -52,7 +52,7 @@ pub fn insert_relation(task_relation: NewTaskRelation) -> DbResult<i32> {
     use crate::database::models::TaskRelation;
     use crate::database::schema::task_relations::dsl::*;
 
-    let mut conn = crate::database::sqlite::establish_connection().unwrap();
+    let mut conn = crate::database::sqlite::establish_connection()?;
 
     let relations_res = task_relations
         .select(TaskRelation::as_select())
@@ -94,7 +94,7 @@ pub fn insert_relation(task_relation: NewTaskRelation) -> DbResult<i32> {
 pub fn get_task_by_id(task_id: i32) -> DbResult<Task> {
     use crate::database::schema::tasks::dsl::*;
 
-    let mut conn = crate::database::sqlite::establish_connection().unwrap();
+    let mut conn = crate::database::sqlite::establish_connection()?;
 
     let res = tasks.filter(id.eq(task_id)).first::<Task>(&mut conn);
 
@@ -114,7 +114,7 @@ pub fn get_task_by_name_fuzzy(name: &str) -> DbResult<Vec<Task>> {
     use crate::database::schema::tasks::dsl::*;
     use crate::database::sqlite::establish_connection;
 
-    let mut conn = establish_connection().unwrap();
+    let mut conn = establish_connection()?;
 
     let res = tasks
         .filter(task.like(format!("%{}%", name)))
@@ -127,7 +127,7 @@ pub fn get_all_tasks() -> DbResult<Vec<Task>> {
     use crate::database::schema::tasks::dsl::*;
     use crate::database::sqlite::establish_connection;
 
-    let mut conn = establish_connection().unwrap();
+    let mut conn = establish_connection()?;
 
     let res = tasks.load::<Task>(&mut conn);
 
@@ -137,7 +137,7 @@ pub fn get_all_tasks() -> DbResult<Vec<Task>> {
 pub fn get_child_tasks(task_id: i32) -> DbResult<Vec<Task>> {
     use crate::database::schema::tasks::dsl::*;
 
-    let mut conn = crate::database::sqlite::establish_connection().unwrap();
+    let mut conn = crate::database::sqlite::establish_connection()?;
 
     let child_tasks_res = crate::database::schema::task_relations::dsl::task_relations
         .filter(crate::database::schema::task_relations::dsl::parent_id.eq(task_id))
@@ -157,7 +157,7 @@ pub fn get_all_root_tasks() -> DbResult<Vec<Task>> {
     use crate::database::schema::tasks::dsl::*;
     use crate::database::sqlite::establish_connection;
 
-    let mut conn = establish_connection().unwrap();
+    let mut conn = establish_connection()?;
 
     let child_tasks_res = crate::database::schema::task_relations::dsl::task_relations
         .select(crate::database::schema::task_relations::dsl::child_id)
@@ -177,7 +177,7 @@ pub fn get_task_max_id() -> DbResult<i32> {
     use crate::database::schema::tasks::dsl::*;
     use crate::database::sqlite::establish_connection;
 
-    let mut conn = establish_connection().unwrap();
+    let mut conn = establish_connection()?;
 
     let res = tasks.select(id).load::<i32>(&mut conn);
 
@@ -197,7 +197,7 @@ pub fn contains_task_id(task_id: i32) -> DbResult<bool> {
     use crate::database::schema::tasks::dsl::*;
     use crate::database::sqlite::establish_connection;
 
-    let mut conn = establish_connection().unwrap();
+    let mut conn = establish_connection()?;
 
     let res = tasks.filter(id.eq(task_id)).load::<Task>(&mut conn);
 
@@ -211,7 +211,7 @@ pub fn get_tasks_by_due_date(due_date: chrono::NaiveDateTime) -> DbResult<Vec<Ta
     use crate::database::schema::tasks::dsl::*;
     use crate::database::sqlite::establish_connection;
 
-    let mut conn = establish_connection().unwrap();
+    let mut conn = establish_connection()?;
 
     let res = tasks
         .filter(due_date.le(due_date))
@@ -223,7 +223,7 @@ pub fn get_tasks_by_due_date(due_date: chrono::NaiveDateTime) -> DbResult<Vec<Ta
 pub fn mark_task(task_id: i32, new_status: TaskStatus) -> DbResult<()> {
     use crate::database::schema::tasks::dsl::*;
 
-    let mut conn = crate::database::sqlite::establish_connection().unwrap();
+    let mut conn = crate::database::sqlite::establish_connection()?;
 
     let res = diesel::update(tasks.filter(id.eq(task_id)))
         .set(status.eq(new_status as i32))
@@ -233,4 +233,17 @@ pub fn mark_task(task_id: i32, new_status: TaskStatus) -> DbResult<()> {
         Ok(_) => Ok(()),
         Err(e) => Err(e.to_string().into()),
     }
+}
+
+pub fn get_tasks_by_status(task_status: TaskStatus) -> DbResult<Vec<Task>> {
+    use crate::database::schema::tasks::dsl::*;
+    use crate::database::sqlite::establish_connection;
+
+    let mut conn = establish_connection()?;
+
+    let res = tasks
+        .filter(status.eq(task_status as i32))
+        .load::<Task>(&mut conn);
+
+    res.map_err(|e| e.to_string().into())
 }

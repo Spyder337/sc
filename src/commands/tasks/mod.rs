@@ -8,7 +8,7 @@ use clap::{Subcommand, arg};
 use crate::database::{
     models::task::{task_status_utf8, NewTask, NewTaskRelation, Task, TaskStatus},
     sqlite::{
-        contains_task_id, get_all_root_tasks, get_all_tasks, get_child_tasks, get_task_by_id, insert_relation, insert_task, mark_task
+        contains_task_id, get_all_root_tasks, get_all_tasks, get_child_tasks, get_task_by_id, get_tasks_by_status, insert_relation, insert_task, mark_task
     },
 };
 
@@ -56,6 +56,8 @@ pub enum TaskCommands {
         /// If provided, the tasks will be displayed in detailed format.
         #[arg(long)]
         detailed: bool,
+        #[arg(long, short = 'f')]
+        filter: Option<TaskStatus>,
     },
     /// Mark a task
     Mark {
@@ -150,7 +152,7 @@ impl CommandHandler for TaskCommands {
                         detailed,
                         task_id,
                     } => get_task_view( *detailed, *task_id),
-            TaskCommands::GetAll { detailed } => get_all_task_view( *detailed),
+            TaskCommands::GetAll { detailed, filter } => get_all_task_view( *detailed, *filter),
             TaskCommands::Mark { task_id, status } => 
             {
                 let res = mark_task(*task_id, *status);
@@ -160,8 +162,13 @@ impl CommandHandler for TaskCommands {
     }
 }
 
-fn get_all_task_view(detailed: bool) -> crate::Result<()> {
-    let tasks = get_all_tasks().map_err(|e| e.to_string())?;
+fn get_all_task_view(detailed: bool, filter: Option<TaskStatus>) -> crate::Result<()> {
+    let tasks_res = if filter.is_none() {
+        get_all_tasks()
+    } else {
+        get_tasks_by_status(filter.unwrap())
+    };
+    let tasks = tasks_res.map_err(|e| e.to_string())?;
     if tasks.is_empty() {
         println!("No tasks to display.");
     }
