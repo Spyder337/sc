@@ -13,12 +13,12 @@ pub enum TaskStatus {
     Incomplete = 2,
 }
 
-impl ToString for TaskStatus {
-    fn to_string(&self) -> String {
+impl Display for TaskStatus {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            TaskStatus::InProgress => "In Progress".to_string(),
-            TaskStatus::Complete => "Complete".to_string(),
-            TaskStatus::Incomplete => "Incomplete".to_string(),
+            TaskStatus::InProgress => write!(f, "In Progress"),
+            TaskStatus::Complete => write!(f, "Complete"),
+            TaskStatus::Incomplete => write!(f, "Incomplete"),
         }
     }
 }

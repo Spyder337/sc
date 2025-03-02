@@ -1,7 +1,6 @@
 mod core;
 
 pub use core::*;
-use std::fmt;
 
 use chrono::{DateTime, Local};
 use clap::{Subcommand, arg};
