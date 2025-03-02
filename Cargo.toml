@@ -1,12 +1,12 @@
 [package]
 name = "ShellCommander"
-version = "0.1.1"
+version = "0.2.0"
 edition = "2024"
 
 [dependencies]
-chrono = "0.4.39"
-clap = { version = "4.5.28", features = ["color", "derive", "suggestions"]}
-clap_complete = "4.5.44"
+chrono = "0.4.40"
+clap = { version = "4.5.31", features = ["color", "derive", "suggestions"]}
+clap_complete = "4.5.46"
 clap_complete_nushell = "4.5.5"
 derive = "1.0.0"
 directories = "6.0.0"
@@ -20,8 +20,8 @@ diesel = { version = "2.2.7", features = [
   "chrono",
   "sqlite",
 ], default-features = false }
-serde = { version = "1.0.217", features = ["derive"] }
-serde_json = "1.0.138"
+serde = { version = "1.0.218", features = ["derive"] }
+serde_json = "1.0.139"
 tokio = { version = "1.43.0", features = ["full"] }
 toml = "0.8.20"
 diesel_migrations = { version = "2.2.0", features = ["sqlite"] }
