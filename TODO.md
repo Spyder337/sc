@@ -6,11 +6,11 @@ The goal is to create a simple task management system. To allow me to manage
 calendar events and other tasks. The calendar integration is with Google
 Calendars.
 
-- [ ] Task List
-  - [ ] Compact Mode
+- [x] Task List
+  - [x] Compact Mode
   - [x] Expanded - Display Full Nested Tasks
-  - [ ] Current Tasks
-  - [ ] Completed Tasks
+  - [x] Current Tasks
+  - [x] Completed Tasks
 - [x] New Task
   - [x] Command - Create Single Task
   - [x] Menu - Create Single Task
