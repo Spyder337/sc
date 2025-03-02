@@ -15,9 +15,22 @@ pub struct Quote {
 
 impl std::fmt::Display for Quote {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let mut quote_str = String::new();
+        let max_chars = 80;
+        let mut char_cnt = 0;
+        let words = self.quote.split_whitespace();
+        for word in words {
+            if char_cnt + word.len() > max_chars {
+                quote_str.push_str("\n");
+                char_cnt = 0;
+            }
+            quote_str.push_str(word);
+            quote_str.push_str(" ");
+            char_cnt += word.len();
+        }
         f.write_str(&format!(
             "{}\n\t- {}",
-            &self.quote.magenta_bright(),
+            &quote_str.magenta_bright(),
             &self.author.green_bright()
         ))
     }

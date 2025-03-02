@@ -47,48 +47,48 @@ pub fn get_search_by(
     let result;
     if query_str.is_some() && site_str.is_none() && allintext_str.is_none() {
         result = searches
-            .filter(query.like(&format!("{}%", query_str.unwrap())))
+            .filter(query.like(&format!("%{}%", query_str.unwrap())))
             .load::<SearchEntry>(conn);
     } else if query_str.is_some() && site_str.is_none() && allintext_str.is_some() {
         result = searches
             .filter(
                 query
-                    .like(&format!("{}%", query_str.unwrap()))
-                    .and(allintext.like(&format!("{}%", allintext_str.unwrap_or("".to_string())))),
+                    .like(&format!("%{}%", query_str.unwrap()))
+                    .and(allintext.like(&format!("%{}%", allintext_str.unwrap_or("".to_string())))),
             )
             .load(conn);
     } else if query_str.is_some() && site_str.is_some() && allintext_str.is_none() {
         result = searches
             .filter(
                 query
-                    .like(&format!("{}%", query_str.unwrap()))
-                    .and(website.like(&format!("{}%", site_str.unwrap_or("".to_string())))),
+                    .like(&format!("%{}%", query_str.unwrap()))
+                    .and(website.like(&format!("%{}%", site_str.unwrap_or("".to_string())))),
             )
             .load(conn);
     } else if query_str.is_some() && site_str.is_some() && allintext_str.is_some() {
         result = searches
             .filter(
                 query
-                    .like(&format!("{}%", query_str.unwrap()))
-                    .and(website.like(&format!("{}%", site_str.unwrap())))
-                    .and(allintext.like(&format!("{}%", allintext_str.unwrap()))),
+                    .like(&format!("%{}%", query_str.unwrap()))
+                    .and(website.like(&format!("%{}%", site_str.unwrap())))
+                    .and(allintext.like(&format!("%{}%", allintext_str.unwrap()))),
             )
             .load(conn);
     } else if site_str.is_some() && allintext_str.is_none() {
         result = searches
-            .filter(website.like(&format!("{}%", site_str.unwrap())))
+            .filter(website.like(&format!("%{}%", site_str.unwrap())))
             .load(conn);
     } else if site_str.is_some() && allintext_str.is_some() {
         result = searches
             .filter(
                 website
-                    .like(&format!("{}%", site_str.unwrap()))
-                    .and(allintext.like(&format!("{}%", allintext_str.unwrap()))),
+                    .like(&format!("%{}%", site_str.unwrap()))
+                    .and(allintext.like(&format!("%{}%", allintext_str.unwrap()))),
             )
             .load(conn);
     } else if allintext_str.is_some() {
         result = searches
-            .filter(allintext.like(&format!("{}%", allintext_str.unwrap())))
+            .filter(allintext.like(&format!("%{}%", allintext_str.unwrap())))
             .load(conn);
     } else {
         result = searches.load(conn);

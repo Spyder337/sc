@@ -157,10 +157,6 @@ impl CommandHandler for EnvCommands {
                 let _ = crate::database::generate_dotenv();
                 Ok(())
             }
-            // EnvCommands::InitDatabase => {
-            //     let _ = crate::database::init_database();
-            //     Ok(())
-            // }
         }
     }
 }

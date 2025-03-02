@@ -39,7 +39,7 @@ diesel::table! {
         id -> Integer,
         task -> Text,
         desc -> Nullable<Text>,
-        status -> Text,
+        status -> Integer,
         time_stamp -> Timestamp,
         due_date -> Nullable<Timestamp>,
         renewal_duration -> Nullable<Integer>,

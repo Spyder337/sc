@@ -3,6 +3,7 @@ pub mod environment;
 pub mod git;
 pub mod greeting;
 pub mod quotes;
+pub mod tasks;
 pub mod web;
 
 use clap::{Parser, Subcommand};
@@ -11,6 +12,7 @@ use completions::CompletionCommands;
 use environment::EnvCommands;
 use git::GitCommands;
 use quotes::{QuoteCommands, core::get_daily};
+use tasks::TaskCommands;
 use web::WebCommands;
 
 pub use environment::core::{Environment, time_now};
@@ -44,6 +46,10 @@ pub enum Commands {
     },
     /// Message of the day.
     Welcome,
+    Tasks {
+        #[command(subcommand)]
+        command: TaskCommands,
+    },
 }
 
 /// A trait that indicates a struct encapsulates a command.
@@ -72,6 +78,7 @@ impl CommandHandler for ClapParser {
                 println!("{}", get_daily().unwrap());
                 Ok(())
             }
+            Commands::Tasks { command } => command.handle(),
         }
     }
 }
